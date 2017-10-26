@@ -1,0 +1,1339 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="PXEServer," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="原理简介： 通过PXE网卡启动， 从dhcp服务器获取IP和bootloader,即 pxelinux.0（DHCP server判断是否为合法的来着PXE Client 的请求后） 获取pxelinux.0的参数文件pxelinux.cfg/default vmlinux、initrd…  流程： Server Environment Requirements 软件安装，配置PXE Server">
+<meta name="keywords" content="PXEServer">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to setup PXE Server for NFS">
+<meta property="og:url" content="http://yoursite.com/2017/08/27/How-to-setup-PXE-Server-for-NFS/index.html">
+<meta property="og:site_name" content="Pedro&#39;s Blog">
+<meta property="og:description" content="原理简介： 通过PXE网卡启动， 从dhcp服务器获取IP和bootloader,即 pxelinux.0（DHCP server判断是否为合法的来着PXE Client 的请求后） 获取pxelinux.0的参数文件pxelinux.cfg/default vmlinux、initrd…  流程： Server Environment Requirements 软件安装，配置PXE Server">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-10-26T15:22:09.182Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How to setup PXE Server for NFS">
+<meta name="twitter:description" content="原理简介： 通过PXE网卡启动， 从dhcp服务器获取IP和bootloader,即 pxelinux.0（DHCP server判断是否为合法的来着PXE Client 的请求后） 获取pxelinux.0的参数文件pxelinux.cfg/default vmlinux、initrd…  流程： Server Environment Requirements 软件安装，配置PXE Server">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/08/27/How-to-setup-PXE-Server-for-NFS/"/>
+
+
+
+
+
+  <title>How to setup PXE Server for NFS | Pedro's Blog</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f1571352af38e9c43104d953dc8815da";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+<a href="https://github.com/pedroqin"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pedro's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Every day is a new day</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/27/How-to-setup-PXE-Server-for-NFS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Pedro Qin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://i4.buimg.com/594822/876637a2be965e3ct.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pedro's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">How to setup PXE Server for NFS</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-27T21:42:00-04:00">
+                2017-08-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计</span>
+                
+                <span title="字数统计">
+                  2,461
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长</span>
+                
+                <span title="阅读时长">
+                  12
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="原理简介："><a href="#原理简介：" class="headerlink" title="原理简介："></a>原理简介：</h4><ul>
+<li>通过PXE网卡启动，</li>
+<li>从dhcp服务器获取IP和bootloader,即 pxelinux.0（DHCP server判断是否为合法的来着PXE Client 的请求后）</li>
+<li>获取pxelinux.0的参数文件pxelinux.cfg/default</li>
+<li>vmlinux、initrd…</li>
+</ul>
+<h4 id="流程："><a href="#流程：" class="headerlink" title="流程："></a>流程：</h4><ol>
+<li><a href="#1">Server Environment Requirements</a></li>
+<li><a href="#2">软件安装，配置PXE Server</a></li>
+<li><a href="#3">编译客户端启动内核</a></li>
+<li><a href="#4">自定义脚本initial解决系统启动方案</a></li>
+<li><a href="#5">启动服务</a></li>
+<li><p><a href="#6">运行调试</a></p>
+<a id="more"></a>
+<h5 id="1-Server-Environment-Requirements"><a href="#1-Server-Environment-Requirements" class="headerlink" title="1. Server Environment Requirements"></a><span id="1">1. Server Environment Requirements</span></h5></li>
+<li><p>OS Requirements</p>
+<ul>
+<li>Redhat 6.3 </li>
+<li>Redhat 6.5</li>
+<li>newer</li>
+</ul>
+</li>
+<li>Services Requirements<ul>
+<li>dhcpd</li>
+<li>tftp-server(Tiny FTP)</li>
+<li>xinetd</li>
+<li>syslinux-tftpboot</li>
+</ul>
+</li>
+</ol>
+<h5 id="2-软件安装，配置PXE-Server"><a href="#2-软件安装，配置PXE-Server" class="headerlink" title="2. 软件安装，配置PXE Server"></a><span id="2">2. 软件安装，配置PXE Server</span></h5><ul>
+<li>rpm -ivh syslinux-tftpboot-xxx.x86_64.rpm</li>
+<li>rpm -ivh xinetd-xxx.x86_64.rpm</li>
+<li>rpm -ivh tftp-server-xxx.x86_64.rpm</li>
+<li>rpm -ivh dhcp-xxxx.86_64.rpm</li>
+</ul>
+<p><em>在syslinux-tftpboot 软件包中,只有一个文档是我们需要的,除此之外,其他文档均可删除,这个文档就是/tftpboot/pxelinux.0, support Legacy mode boot</em></p>
+<h6 id="配置-DHCP"><a href="#配置-DHCP" class="headerlink" title="配置 DHCP"></a>配置 DHCP</h6><p>在配置 DHCP 之前,首先要确定在 Server 上,需要哪个网卡来受理客户机的请求,这里假设由 eth0的网卡来提供这样的服务,那么就要设定 eth0 的地址为静态 IP,这个网卡配置的文件路径是:<code>/etc/sysconfig/network-scripts/ifcfg-eth0</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cd /etc/sysconfig/network-scripts</div><div class="line">sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=static/g' ifcfg-eth0</div><div class="line">echo "IPADDR=192.168.0.20" &gt;&gt; ifcfg-eth0</div><div class="line">echo "NETMASK=255.255.255.0" &gt;&gt; ifcfg-eth0</div></pre></td></tr></table></figure>
+<p>注意:如果有 HWADDR 变量,那是 eth0 的 MAC 地址,这个在读者构建是要注意,不要照抄。设置 PXE Server 名称:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">echo -ne "192.168.0.20 server server.domain server6 server6.domain6\n" &gt;&gt; /etc/hosts</div></pre></td></tr></table></figure>
+<p>DHCP 服务启动之前首先需要一个周期文件/var/lib/dhcpd/dhcpd.leases,如果没有此档就创建之:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">touch /var/lib/dhcpd/dhcpd.leases</div></pre></td></tr></table></figure><br>DHCP 的功能是向客户机分配一个通信 IP,当然是在客户机请求的时候。用 vim 编辑/etc/dhcp/dhcpd.conf,或者按以下命令直接写入该档:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">cat &gt; /etc/dhcp/dhcpd.conf &lt;&lt; "EOF"</div><div class="line">option space PXE;</div><div class="line">option PXE.mtftp-ip                 code 1 = ip-address;</div><div class="line">option PXE.mtftp-cport              code 2 = unsigned integer 16;</div><div class="line">option PXE.mtftp-sport              code 3 = unsigned integer 16;</div><div class="line">option PXE.mtftp-tmout              code 4 = unsigned integer 8;</div><div class="line">option PXE.mtftp-delay              code 5 = unsigned integer 8;</div><div class="line">option PXE.discovery-control        code 6 = unsigned integer 8;</div><div class="line">option PXE.discovery-mcast-addr     code 7 = ip-address;</div><div class="line">option arch                         code 93 = unsigned integer 16;</div><div class="line"></div><div class="line">ddns-update-style interim;</div><div class="line">ignore client-updates;</div><div class="line">allow booting;</div><div class="line">allow bootp;</div><div class="line">subnet 192.168.0.0 netmask 255.255.0.0 &#123;</div><div class="line">DHCPDARGS=eth0;### 指定 eth0 网卡做 DHCP 的服务,其他 PXE Server 网卡不受理客户机的 DHCP 请求。</div><div class="line"></div><div class="line">option routers             192.168.0.1;</div><div class="line">option broadcast-address   192.168.255.255;</div><div class="line">option subnet-mask         255.255.0.0;</div><div class="line">option domain-name-servers 192.168.0.20;</div><div class="line">option nis-domain "domain.org";</div><div class="line">option domain-name "domain.org";</div><div class="line">option time-offset        -18000; # Eastern Standard Time</div><div class="line">range dynamic-bootp       192.168.0.30    192.168.3.252;</div><div class="line">class "pxeclients" &#123;</div><div class="line">match if substring (option vendor-class-identifier,0,9)="PXEClient";</div><div class="line">next-server 192.168.0.20;</div><div class="line">if option arch = 00:07 &#123;</div><div class="line">filename "UEFI/BOOT/BOOTX64.efi";</div><div class="line">&#125; else &#123;</div><div class="line">filename "Legacy/pxelinux.0";</div><div class="line">&#125;</div><div class="line">&#125;</div><div class="line">default-lease-time 1800;</div><div class="line">max-lease-time 3600;</div><div class="line">&#125;</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
+<h6 id="PXE-Server-端配置-TFTP"><a href="#PXE-Server-端配置-TFTP" class="headerlink" title="PXE Server 端配置 TFTP"></a>PXE Server 端配置 TFTP</h6><p>TFTP 在 PXE 远程启动过程中提供档下载的服务,所有的档下载都是通过 TFTP 完成。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">cat &gt; /etc/xinetd.d/tftp &lt;&lt; "EOF"</div><div class="line">service tftp</div><div class="line">&#123;</div><div class="line">socket_type = dgram</div><div class="line">protocols = udp</div><div class="line">wait = yes</div><div class="line">user = root</div><div class="line">server = /usr/sbin/in.tftpd</div><div class="line">server_args = -s /tftpboot -vvv</div><div class="line">disable = no</div><div class="line">per_source = 22</div><div class="line">cps = 100 2</div><div class="line">flags= IPv4</div><div class="line">&#125;</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
+<h6 id="构建客户端文件系统"><a href="#构建客户端文件系统" class="headerlink" title="构建客户端文件系统"></a>构建客户端文件系统</h6><p>到这里,建议操作人员自己定制安装一个 Linux 系统,把需要的软件包都装上去,再把安装好的 Linux 系统按照上面的操作去构建一个被挂载文件系统。这样给客户端挂载的文件系统就要小得多。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">mkdir -p /tftpboot/pxeboot/&#123;root,home,var,opt,dev,sys,proc,tmp,mnt,media,misc,net,srv,log&#125;</div><div class="line">mkdir -p /tftpboot/&#123;pxeboot,Legacy,UEFI &#125;</div><div class="line">cd /tftpboot/pxeboot</div><div class="line">chmod 777 tmp</div><div class="line">cp -fr /bin ./</div><div class="line">cp -fr /sbin ./</div><div class="line">cp -fr /usr ./</div><div class="line">cp -fr /etc ./</div><div class="line">cp -fr /lib ./</div><div class="line">cp -fr /lib64 ./</div><div class="line">rm -fr lib/modules/*</div><div class="line">cp -fr /root/.bashrc root/</div><div class="line">cp -fr /root/.bash_profile root/</div><div class="line">if [ -f etc/dhcpd.conf ]; then</div><div class="line">echo "" &gt; etc/dhcpd.conf</div><div class="line">rm etc/grub.conf -fr</div><div class="line">sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' etc/selinux/config</div><div class="line">fi</div><div class="line">sed -i '/\&lt;order\&gt;/D' etc/host.conf</div><div class="line">echo 'reorder on' &gt;&gt; etc/host.conf</div><div class="line">if [ -f etc/xinetd.d/tftp ]; then</div><div class="line">TFTPDIS=`grep "disable" -R etc/xinetd.d/tftp |sed 's/no/yes/g'`</div><div class="line">ORI=`grep "disable" -R etc/xinetd.d/tftp`</div><div class="line">if [[ ! -z $TFTPDIS &amp;&amp; ! -z $ORI ]]; then</div><div class="line">sed -i "s/$ORI/$TFTPDIS/" etc/xinetd.d/tftp</div><div class="line">fi</div><div class="line">fi</div></pre></td></tr></table></figure></p>
+<h6 id="准备测试程序包"><a href="#准备测试程序包" class="headerlink" title="准备测试程序包"></a>准备测试程序包</h6><p>程序放到 <code>/tftpboot/pxeboot/usr/local/XXXXXX</code></p>
+<h6 id="设置客户机挂载的文件系统"><a href="#设置客户机挂载的文件系统" class="headerlink" title="设置客户机挂载的文件系统"></a>设置客户机挂载的文件系统</h6><p>配置这一项的目的是允许客户机挂载 PXE Server 文件目录,这里允许客户端得到这文件系统的完全控制权。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cat &gt; /etc/exports &lt;&lt; "EOF"</div><div class="line">/tftpboot/pxeboot *(rw,all_squash,anonuid=0,anongid=0)</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
+<h6 id="客户机文件系统配置"><a href="#客户机文件系统配置" class="headerlink" title="客户机文件系统配置"></a>客户机文件系统配置</h6><p>客户端启动时对文件系统挂载列表:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">cat &gt; /tftpboot/pxeboot/etc/fstab &lt;&lt; "EOF"</div><div class="line">192.168.0.20:/tftpboot/pxeboot /   nfs  nolock,retry=1            1 1</div><div class="line">tmpfs  /dev/shm           tmpfs     defaults                0 0</div><div class="line">tmpfs  /tmp               tmpfs     defaults                0 0 </div><div class="line">/usr/local/Foxconn               tmpfs     defaults                0 0 </div><div class="line">devpts /dev/pts           devpts    gid=5,mode=620          0 0</div><div class="line">sysfs  /sys               sysfs   defaults                  0 0</div><div class="line">proc   /proc              proc    defaults                  0 0</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
+<h6 id="对启动级别和显示终端的设定"><a href="#对启动级别和显示终端的设定" class="headerlink" title="对启动级别和显示终端的设定"></a>对启动级别和显示终端的设定</h6><p>用 vim 编辑<code>/tftpboot/pxeboot/etc/inittab</code>,或者通过以下命令设定启动级别:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sed -i 's#id:5:initdefault:#id:3:initdefault:#g' /tftpboot/pxeboot/etc/inittab</div></pre></td></tr></table></figure><br>设定后的启动级别是从第 3 级启动,也就是文本模式启动</p>
+<h5 id="3-编译客户端启动内核"><a href="#3-编译客户端启动内核" class="headerlink" title="3. 编译客户端启动内核"></a><span id="3">3. 编译客户端启动内核</span></h5><p>编译客户端启动所用的内核,要注意的地方:</p>
+<ul>
+<li>网络在内核启动过程中的支持</li>
+<li>块设备在内核中的支持</li>
+<li>支持远程 PXE 启动的网卡驱动不要作为独立的模块编译</li>
+<li>网络文件系统的支持</li>
+</ul>
+<p>以上提到的只是最基本的支持,需要根据自己的需要对内核做实际的配置。<br>内核源代码可以从网页 <a href="http://www.kernel.org/pub/linux/kernel/" target="_blank" rel="external">http://www.kernel.org/pub/linux/kernel/</a> 下载。</p>
+<h6 id="解压内核代码包"><a href="#解压内核代码包" class="headerlink" title="解压内核代码包"></a>解压内核代码包</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">tar -xzvf linux-3.18.1.tar.gz -C /home</div><div class="line">cd /home</div></pre></td></tr></table></figure>
+<h6 id="修改内核版本信息"><a href="#修改内核版本信息" class="headerlink" title="修改内核版本信息"></a>修改内核版本信息</h6><p>给你的 kernel 取个名:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cd /home/linux-3.18.1</div><div class="line">EXTVER=`grep '^EXTRAVERSION' -R Makefile`</div><div class="line">sed -i "s/$EXTVER/EXTRAVERSION = -3.18.1 XXX/" Makefile ####可自定义</div></pre></td></tr></table></figure><br>编译内核之前 首先要配置内核 选择需要的模块 按照前面所讲到的顺序我们一步步来配置内核。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">make menuconfig</div></pre></td></tr></table></figure></p>
+<p>######支持模块自动加载</p>
+<pre><code>[*] Enable loadable module support ---&gt;
+[*] Forced module loading
+[*] Module unloading
+[ ] Forced module unloading
+[*] Module versioning support
+[*] Source checksum for all modules
+</code></pre><h6 id="网络在内核启动过程中的支持"><a href="#网络在内核启动过程中的支持" class="headerlink" title="网络在内核启动过程中的支持"></a>网络在内核启动过程中的支持</h6><pre><code>-*- Networking support ---&gt;
+Networking options
+---&gt;
+[*] TCP/IP networking
+[*] IP: multicasting
+[*] IP: advanced router
+[ ] FIB TRIE statistics
+[*] IP: policy routing
+[*] IP: equal cost multipath
+[*] IP: verbose route monitoring
+[*]
+IP: kernel level autoconfiguration
+[*] IP: DHCP support
+[*] IP: BOOTP support
+[*] IP: RARP support
+</code></pre><h6 id="块设备和网卡驱动在内核中的支持"><a href="#块设备和网卡驱动在内核中的支持" class="headerlink" title="块设备和网卡驱动在内核中的支持"></a>块设备和网卡驱动在内核中的支持</h6><pre><code>Device Drivers ---&gt;
+[*] Block devices
+&lt;*&gt;
+---&gt;
+RAM block device support
+[*] Network device support ---&gt;
+[*]
+Ethernet (1000 Mbit) ---&gt;
+&lt;M&gt; Intel(R) PRO/1000 PCI-Express Gigabit Ethernet support
+&lt;*&gt; Intel(R) 82575/82576 PCI-Express Gigabit Ethernet support
+</code></pre><p>支持远程 PXE 启动的网卡驱动不要作为独立的模块编译,本文的描述是基于 Intel网卡来实现的,因此,本文在这里只针对 Intel 82575/82576 网卡做了配置。如果你需要对其他网卡驱动设置 你可以找到对于模块选中为“&lt;*&gt;”进行编译</p>
+<h6 id="网络文件系统的支持"><a href="#网络文件系统的支持" class="headerlink" title="网络文件系统的支持"></a>网络文件系统的支持</h6><pre><code>File systems ---&gt;
+&lt;*&gt; Second extended fs support
+...
+&lt;*&gt; Ext3 journalling file system support
+...
+&lt;*&gt; The Extended 4 (ext4) filesystem
+...
+[*] Network File Systems ---&gt;
+&lt;*&gt;
+[*]
+NFS client support
+NFS client support for NFS version 3
+[*]
+[*]
+NFS client support for the NFSv3 ACL protocol extension
+NFS client support for NFS version 4
+[*]
+[*]
+NFS client support for NFSv4.1 (EXPERIMENTAL)
+Root file system on NFS
+...
+&lt;*&gt;
+NFS server support
+[*] Include support for deprecated syscall interface to NFSD
+-*- NFS server support for NFS version 3
+[*]
+[*]
+NFS server support for the NFSv3 ACL protocol extension
+NFS server support for NFS version 4 (EXPERIMENTAL)
+...
+&lt;M&gt;
+CIFS support (advanced network filesystem, SMBFS successor)
+</code></pre><p>对网络文件系统的支持只是文件系统的一部份,不是全部,例如 ext2,ext3 等等文件系统也是要支持的。新编的内核不需要任何虚拟模块的支持,读者可以自行配置启动内核。配置内核完了之后,开始编译内核源代码,这要花些时间。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">make</div><div class="line">make modules</div><div class="line">make modules_install</div><div class="line">make install</div></pre></td></tr></table></figure><br>到这里,最好是重启机器,验证新编译成功的代码是不是能启动。如果能用新的内核启动机器,再将安装的内核拷贝到/tftpboot,将设备驱动目录都拷贝到/tftpboot/pxeboot/lib/modules 目录下。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">d /boot/</div><div class="line">cp -fr</div><div class="line">vmlinuz-3.18.1 /tftpboot</div><div class="line">cd /lib/modules</div><div class="line">cp -fr 3.18.1 /tftpboot/pxeboot/lib/modules</div></pre></td></tr></table></figure></p>
+<h5 id="4-自定义脚本initial解决系统启动方案"><a href="#4-自定义脚本initial解决系统启动方案" class="headerlink" title="4. 自定义脚本initial解决系统启动方案"></a><span id="4">4. 自定义脚本initial解决系统启动方案</span></h5><h6 id="Initial-定义"><a href="#Initial-定义" class="headerlink" title="Initial 定义"></a>Initial 定义</h6><p>Linux 系统从 kernel 转向 rc.sysinit 脚本前,我们可以指定自己的初始化脚本 initial,让系统去执行这个脚本。系统在调用 RAMDISK 方案中的 initial 或者调用自定义的 initial 脚本过程是一样的。你可以根据自己的需要去设计这个脚本。这里我们要实现的是将 UUT 客户端的/var 目录建立完善。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">cat &gt; /tftpboot/pxeboot/etc/initial &lt;&lt; "EOF"</div><div class="line"><span class="meta">#</span>!/bin/bash</div><div class="line">mount -t tmpfs tmpfs /var</div><div class="line">mkdir -p /var/spool/&#123;anacron,clientmqueue&#125;</div><div class="line">mkdir -p /var/&#123;tmp,log,cache,local,etc&#125;</div><div class="line">mkdir -p /var/log/sa</div><div class="line">mkdir -p /var/lock/subsys</div><div class="line">mkdir -p /var/empty/sshd/etc</div><div class="line">mkdir -p /var/lib/nfs/statd/&#123;sm,sm.bak&#125;</div><div class="line">mkdir -p /var/lib/nfs/rpc_pipefs</div><div class="line">mkdir -p /var/lib/&#123;dbus,rpm&#125;</div><div class="line">- 12 -</div><div class="line">mkdir -p /var/run/&#123;dbus,netreport,udev,systemd,user,mount&#125;</div><div class="line">mkdir -p /var/run/udev/&#123;data,rules.d,links,tags,watch&#125;</div><div class="line">mkdir -p /var/run/systemd/readahead</div><div class="line">mkdir -p /var/spool/&#123;clientmqueue,at&#125;</div><div class="line">touch /var/spool/at/.SEQ</div><div class="line">exec /sbin/init 3</div><div class="line">EOF</div><div class="line">chmod +x /tftpboot/pxeboot/etc/initial</div></pre></td></tr></table></figure></p>
+<h6 id="启动文件-bootstrap-配置"><a href="#启动文件-bootstrap-配置" class="headerlink" title="启动文件 bootstrap 配置"></a>启动文件 bootstrap 配置</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">cat &gt; /tftpboot/ Legacy/pxelinux.cfg/default &lt;&lt; "EOF"</div><div class="line">default PXEServer</div><div class="line">prompt 1</div><div class="line">timeout 5</div><div class="line">label PXEServer</div><div class="line">hiddenmenu</div><div class="line">title PXE Diagnostics Linux x86_x64</div><div class="line">kernel vmlinuz-3.18.1</div><div class="line">append init=/etc/initial lang=en_US keymap=us root=/dev/nfs nfsroot=192.168.0.20:/tftpboot/pxeboot/ ip=dhcp </div><div class="line">EOF</div></pre></td></tr></table></figure>
+<h5 id="5-启动服务"><a href="#5-启动服务" class="headerlink" title="5. 启动服务"></a><span id="5">5. 启动服务</span></h5><p>运行<code>setup</code>命令关掉防火墙和SeLinux：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@pxeserver ~]# setup</div><div class="line">选中Firewall configuration，选中Run Tool，回车确认；</div><div class="line">Security Level: ( ) Enabled(*) Disabled</div><div class="line">SELinux: Enforcing</div><div class="line">Permissive</div><div class="line">Disabled</div></pre></td></tr></table></figure><br>启动服务进程:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">service iptables stop</div><div class="line">service dhcpd restart</div><div class="line">service nfs restart</div><div class="line">service xinetd restart</div></pre></td></tr></table></figure></p>
+<h5 id="6-运行调试"><a href="#6-运行调试" class="headerlink" title="6. 运行调试"></a><span id="6">6. 运行调试</span></h5><ol>
+<li>插入键盘鼠标会弹出设备的输入输出msg信息<br>可以设定printk级别到最高忽略这些信息<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">echo -n 0 0 0 0 &gt; /proc/sys/kernel/printk</div></pre></td></tr></table></figure></li>
+<li>客户端获取不到 IP<ul>
+<li>检查 DHCP 服务是否已经开启(service dhcpd status)。</li>
+<li>检查网络情况,可以将第三方计算机与 server 主机相连,试着去获取 IP,如果得不到 IP,DHCP server出了问题;如果可以获得 IP,网络有问题;如果有部分客户端分到 IP,部分没分到 IP,可能是 IP POOL中的 IP 已经耗尽,这是最好清理一下 DHCP 日志,然后再重启 DHCP:<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">rm -fr /var/lib/dhcpd/dhcpd.leases~</div><div class="line">echo &gt; /var/lib/dhcpd/dhcpd.leases</div><div class="line">service dhcpd restart</div></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+
+      
+    </div>
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/wechat-qcode.jpg" alt="Pedro Qin wechat" style="width: 200px; max-width: 100%;"/>
+    <div></div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">
+            -------------本文结束
+            <i class="fa fa-paw"></i>
+            感谢您的阅读-------------
+        </div>
+    
+</div>
+
+      
+    </div>
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PXEServer/" rel="tag"><i class="fa fa-tag"></i> PXEServer</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/30/基于Mongodb的WechatRobot群聊记录功能/" rel="next" title="基于Mongodb的WechatRobot群聊记录功能">
+                <i class="fa fa-chevron-left"></i> 基于Mongodb的WechatRobot群聊记录功能
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/08/Xen、OpenVZ、KVM三大VPS技术优劣势详解/" rel="prev" title="Xen、OpenVZ、KVM三大VPS技术优劣势详解">
+                Xen、OpenVZ、KVM三大VPS技术优劣势详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTM4NC83OTQ3"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://i4.buimg.com/594822/876637a2be965e3ct.jpg"
+               alt="Pedro Qin" />
+          <p class="site-author-name" itemprop="name">Pedro Qin</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/qin-hui-qing" target="_blank" title="Zhihu">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Zhihu
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="/uploads/wechat-qcode.jpg" target="_blank" title="Wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  Wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/pedroqin" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/pedroqin" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#原理简介："><span class="nav-number">1.</span> <span class="nav-text">原理简介：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#流程："><span class="nav-number">2.</span> <span class="nav-text">流程：</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-Server-Environment-Requirements"><span class="nav-number">2.1.</span> <span class="nav-text">1. Server Environment Requirements</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-软件安装，配置PXE-Server"><span class="nav-number">2.2.</span> <span class="nav-text">2. 软件安装，配置PXE Server</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#配置-DHCP"><span class="nav-number">2.2.1.</span> <span class="nav-text">配置 DHCP</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#PXE-Server-端配置-TFTP"><span class="nav-number">2.2.2.</span> <span class="nav-text">PXE Server 端配置 TFTP</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#构建客户端文件系统"><span class="nav-number">2.2.3.</span> <span class="nav-text">构建客户端文件系统</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#准备测试程序包"><span class="nav-number">2.2.4.</span> <span class="nav-text">准备测试程序包</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#设置客户机挂载的文件系统"><span class="nav-number">2.2.5.</span> <span class="nav-text">设置客户机挂载的文件系统</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#客户机文件系统配置"><span class="nav-number">2.2.6.</span> <span class="nav-text">客户机文件系统配置</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#对启动级别和显示终端的设定"><span class="nav-number">2.2.7.</span> <span class="nav-text">对启动级别和显示终端的设定</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-编译客户端启动内核"><span class="nav-number">2.3.</span> <span class="nav-text">3. 编译客户端启动内核</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#解压内核代码包"><span class="nav-number">2.3.1.</span> <span class="nav-text">解压内核代码包</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#修改内核版本信息"><span class="nav-number">2.3.2.</span> <span class="nav-text">修改内核版本信息</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#网络在内核启动过程中的支持"><span class="nav-number">2.3.3.</span> <span class="nav-text">网络在内核启动过程中的支持</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#块设备和网卡驱动在内核中的支持"><span class="nav-number">2.3.4.</span> <span class="nav-text">块设备和网卡驱动在内核中的支持</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#网络文件系统的支持"><span class="nav-number">2.3.5.</span> <span class="nav-text">网络文件系统的支持</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-自定义脚本initial解决系统启动方案"><span class="nav-number">2.4.</span> <span class="nav-text">4. 自定义脚本initial解决系统启动方案</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#Initial-定义"><span class="nav-number">2.4.1.</span> <span class="nav-text">Initial 定义</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#启动文件-bootstrap-配置"><span class="nav-number">2.4.2.</span> <span class="nav-text">启动文件 bootstrap 配置</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-启动服务"><span class="nav-number">2.5.</span> <span class="nav-text">5. 启动服务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-运行调试"><span class="nav-number">2.6.</span> <span class="nav-text">6. 运行调试</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedro Qin</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共11.1k字</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (search_path.endsWith("json")) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
