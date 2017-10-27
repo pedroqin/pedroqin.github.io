@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>http://yoursite.com/about/index.html</loc>
+    
+    <lastmod>2017-10-27T02:01:28.779Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2017/10/16/SVN%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9B%E9%98%B6-VisualSVN-Server%E5%92%8CTortoiseSVN%E9%85%8D%E7%BD%AE/</loc>
+    
+    <lastmod>2017-10-26T16:27:51.657Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2017/10/15/SVN%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA-Subversion%E5%92%8CTortoiseSVN%E9%85%8D%E7%BD%AE/</loc>
+    
+    <lastmod>2017-10-26T16:27:42.385Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2017/10/22/Redhat-Ununtu16-04-%E6%B7%BB%E5%8A%A0%E6%9C%8D%E5%8A%A1/</loc>
+    
+    <lastmod>2017-10-26T16:27:34.633Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2017/05/23/my-first-markdown-blog/</loc>
+    
+    <lastmod>2017-10-26T15:25:17.163Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2017/07/26/Wechat_linux_Shell/</loc>
+    
+    <lastmod>2017-10-26T15:24:29.554Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2017/07/30/%E5%9F%BA%E4%BA%8EMongodb%E7%9A%84WechatRobot%E7%BE%A4%E8%81%8A%E8%AE%B0%E5%BD%95%E5%8A%9F%E8%83%BD/</loc>
+    
+    <lastmod>2017-10-26T15:22:52.907Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2017/08/27/How-to-setup-PXE-Server-for-NFS/</loc>
+    
+    <lastmod>2017-10-26T15:22:09.182Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2017/10/08/Xen%E3%80%81OpenVZ%E3%80%81KVM%E4%B8%89%E5%A4%A7VPS%E6%8A%80%E6%9C%AF%E4%BC%98%E5%8A%A3%E5%8A%BF%E8%AF%A6%E8%A7%A3/</loc>
+    
+    <lastmod>2017-10-26T15:21:40.858Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2017/10/23/%E6%90%AD%E6%A2%AF%E5%AD%90%EF%BC%9AShadowsocks-%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC%EF%BC%88%E5%9B%9B%E5%90%88%E4%B8%80%EF%BC%89/</loc>
+    
+    <lastmod>2017-10-26T15:19:44.039Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/personal/index.html</loc>
+    
+    <lastmod>2017-10-08T15:19:37.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/categories/index.html</loc>
+    
+    <lastmod>2017-07-26T15:20:35.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/tags/index.html</loc>
+    
+    <lastmod>2017-07-26T15:19:56.000Z</lastmod>
+    
+  </url>
+  
+</urlset>
