@@ -124,7 +124,7 @@
 <meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/success.jpg">
 <meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/old_grub.jpg">
 <meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/new_grub.jpg">
-<meta property="og:updated_time" content="2017-10-30T14:59:13.627Z">
+<meta property="og:updated_time" content="2017-10-30T15:44:13.722Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="将硬盘系统装进虚拟机">
 <meta name="twitter:description" content="声明&amp;emsp;&amp;emsp;本文并非是虚拟机安装系统教程，而是将已经硬盘上在跑的系统通过操作安装进虚拟机。 概述&amp;emsp;&amp;emsp;在实验工作中实现“保存现有系统盘内镜像-&amp;gt;还原”的操作一般是利用dd、ghost32、Total Recovery等工具或专门的备盘设备进行系统镜像备份操作，然后在硬盘镜像损坏或操作失误以后再进行镜像还原，这个过程类似虚拟机“快照”功能。如果能将做好的硬盘中">
@@ -534,13 +534,11 @@
 </li>
 <li><p>想尝试修改<code>/etc/fstab</code>文件，可是由于系统没有正常加载文件系统，无法进行文件的写操作，即就算改完了这个文件，你也只能像第一步图中那样无法保存。至此事情陷入死胡同。。。</p>
 </li>
-<li><p>本着“办法总比困难多”的想法，尝试将之前步骤生成的vmdk虚拟硬盘通过“虚拟机添加硬盘”的方式添加到到我正常工作的虚拟机中（相当于挂载到别的系统，然后修改此虚拟硬盘内的文件后再以此虚拟硬盘做系统盘开机），然后开机，Bingo！竟然真的能读到硬盘，接下来就是<code>lsblk</code>查看硬盘分区，<code>mount</code>硬盘，修改<code>/etc/fstab</code>，具体操作如图</p>
+<li><p>本着“办法总比困难多”的想法，尝试将之前步骤生成的vmdk虚拟硬盘通过“虚拟机添加硬盘”的方式添加到到我正常工作的虚拟机中（相当于挂载到别的系统，然后修改此虚拟硬盘内的文件后再以此虚拟硬盘做系统盘开机），然后开机，Bingo！竟然真的能读到硬盘，接下来就是<code>lsblk</code>查看硬盘分区，<code>mount</code>硬盘，修改<code>/etc/fstab</code>，具体操作如图  </p>
 <img src="/2017/10/29/将硬盘系统装进虚拟机/new_fstab.jpg" alt="new_fstab" title="new_fstab">  
-</li>
-</ol>
 <img src="/2017/10/29/将硬盘系统装进虚拟机/edit_fstab.jpg" alt="edit_fstab" title="edit_fstab">  
 <p><em>（此处是将我改好的fstab文件覆盖掉硬盘原来的fstab，可直接用<code>vim</code>修改）</em></p>
-<ol>
+</li>
 <li><p>修改完后，将此虚拟机关机，重新将之前以咱们做的虚拟硬盘为主盘的系统开机，重复 Error 1 的操作开机即可发现系统已可正常开机，如下图</p>
 <img src="/2017/10/29/将硬盘系统装进虚拟机/success.jpg" alt="success" title="success"> 
 </li>
