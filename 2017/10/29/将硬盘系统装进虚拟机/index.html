@@ -112,7 +112,19 @@
 <meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/bridge_network.jpg">
 <meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/starting1.jpg">
 <meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/starting.jpg">
-<meta property="og:updated_time" content="2017-10-30T08:04:42.279Z">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/poweron_error.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/edit_grub.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/grub1.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/grub2.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/startIssue.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/edit_issue.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/old_fstab.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/new_fstab.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/edit_fstab.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/success.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/old_grub.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/new_grub.jpg">
+<meta property="og:updated_time" content="2017-10-30T14:59:13.627Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="将硬盘系统装进虚拟机">
 <meta name="twitter:description" content="声明&amp;emsp;&amp;emsp;本文并非是虚拟机安装系统教程，而是将已经硬盘上在跑的系统通过操作安装进虚拟机。 概述&amp;emsp;&amp;emsp;在实验工作中实现“保存现有系统盘内镜像-&amp;gt;还原”的操作一般是利用dd、ghost32、Total Recovery等工具或专门的备盘设备进行系统镜像备份操作，然后在硬盘镜像损坏或操作失误以后再进行镜像还原，这个过程类似虚拟机“快照”功能。如果能将做好的硬盘中">
@@ -439,7 +451,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  772
+                  1,915
                 </span>
               
 
@@ -455,7 +467,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  3
+                  7
                 </span>
               
             </div>
@@ -500,7 +512,50 @@
 </ol>
 <h5 id="6-开机测试"><a href="#6-开机测试" class="headerlink" title="6. 开机测试"></a><span id="6">6. 开机测试</span></h5><img src="/2017/10/29/将硬盘系统装进虚拟机/starting1.jpg" alt="starting" title="starting">  
 <img src="/2017/10/29/将硬盘系统装进虚拟机/starting.jpg" alt="starting..." title="starting...">  
-<h4 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h4><p>将 vmdk 文件转为 gho 格式命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ghost32.exe -clone,mode=create,src=example.vmdk,dst=example.gho -batch -sure</div></pre></td></tr></table></figure></p>
+<h4 id="开机调试"><a href="#开机调试" class="headerlink" title="开机调试"></a>开机调试</h4><h5 id="Error-1"><a href="#Error-1" class="headerlink" title="Error 1"></a>Error 1</h5><p>如果按正常流程，在上述步骤时，虚拟机已经可以正常使用，但是在我实际操作时，在进入开机界面以后跳出如下错误：<br><img src="/2017/10/29/将硬盘系统装进虚拟机/poweron_error.jpg" alt="poweron_error" title="poweron_error">  </p>
+<ol>
+<li><p>图示为内核加载时出错，尝试手动加载内核。在开机出现内核加载倒数时按<code>e</code>，出现下图界面  </p>
+<img src="/2017/10/29/将硬盘系统装进虚拟机/edit_grub.jpg" alt="edit_grub" title="edit_grub">   
+</li>
+<li><p>在此界面按<code>c</code>，进入grub命令行模式，输入命令如下图，关于grub下操作请转文末 <a href="#II">附录II</a> ,命令需因系统配置不同而进行相应修改  </p>
+<img src="/2017/10/29/将硬盘系统装进虚拟机/grub1.jpg" alt="grub1" title="grub1">   
+<img src="/2017/10/29/将硬盘系统装进虚拟机/grub2.jpg" alt="grub2" title="grub2">   
+</li>
+<li><p>上述输入<code>boot</code>命令后即可成功启动，如下图，接下来就是进入系统修改grub文件，要不然每次启动系统都需要输入上图三个命令，不得烦死，“懒惰即美德”嘛！</p>
+<img src="/2017/10/29/将硬盘系统装进虚拟机/startIssue.jpg" alt="startIssue" title="startIssue">  
+</li>
+</ol>
+<h5 id="Error-2"><a href="#Error-2" class="headerlink" title="Error 2"></a>Error 2</h5><ol>
+<li><p>在上述 Error 1 解决之后进入系统，如上图，输入密码即可运行命令，但是当对文件进行写操作时出现下图错误,更不要说更改grub文件了。。。</p>
+<img src="/2017/10/29/将硬盘系统装进虚拟机/edit_issue.jpg" alt="edit_issue" title="edit_issue">  
+</li>
+<li><p>这时候才注意到 Error 1 步骤3的图有些不对劲，看样子像是开机时文件系统没有正常加载，查看<code>/etc/fstab</code>如下图  </p>
+<img src="/2017/10/29/将硬盘系统装进虚拟机/old_fstab.jpg" alt="old_fstab" title="old_fstab">  
+</li>
+<li><p>想尝试修改<code>/etc/fstab</code>文件，可是由于系统没有正常加载文件系统，无法进行文件的写操作，即就算改完了这个文件，你也只能像第一步图中那样无法保存。至此事情陷入死胡同。。。</p>
+</li>
+<li><p>本着“办法总比困难多”的想法，尝试将之前步骤生成的vmdk虚拟硬盘通过“虚拟机添加硬盘”的方式添加到到我正常工作的虚拟机中（相当于挂载到别的系统，然后修改此虚拟硬盘内的文件后再以此虚拟硬盘做系统盘开机），然后开机，Bingo！竟然真的能读到硬盘，接下来就是<code>lsblk</code>查看硬盘分区，<code>mount</code>硬盘，修改<code>/etc/fstab</code>，具体操作如图</p>
+<img src="/2017/10/29/将硬盘系统装进虚拟机/new_fstab.jpg" alt="new_fstab" title="new_fstab">  
+</li>
+</ol>
+<img src="/2017/10/29/将硬盘系统装进虚拟机/edit_fstab.jpg" alt="edit_fstab" title="edit_fstab">  
+<p><em>（此处是将我改好的fstab文件覆盖掉硬盘原来的fstab，可直接用<code>vim</code>修改）</em></p>
+<ol>
+<li><p>修改完后，将此虚拟机关机，重新将之前以咱们做的虚拟硬盘为主盘的系统开机，重复 Error 1 的操作开机即可发现系统已可正常开机，如下图</p>
+<img src="/2017/10/29/将硬盘系统装进虚拟机/success.jpg" alt="success" title="success"> 
+</li>
+<li><p>接下来就是修改<code>/boot/grub/grub.conf</code>文件了,具体操作如图，第一个图为原版，注意新旧比较</p>
+<img src="/2017/10/29/将硬盘系统装进虚拟机/old_grub.jpg" alt="old_grub" title="old_grub"> 
+<img src="/2017/10/29/将硬盘系统装进虚拟机/new_grub.jpg" alt="new_grub" title="new_grub"> 
+</li>
+</ol>
+<h4 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h4><h5 id="附录I"><a href="#附录I" class="headerlink" title="附录I"></a>附录I</h5><p>将 vmdk 文件转为 gho 格式命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ghost32.exe -clone,mode=create,src=example.vmdk,dst=example.gho -batch -sure</div></pre></td></tr></table></figure></p>
+<h5 id="附录II"><a href="#附录II" class="headerlink" title="附录II"></a><span id="II">附录II</span></h5><p>Grub 下操作总结：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">grub&gt; root (hd0,) # 输入 root (hd0,) 这时按 TAB 键会打印出系统上所有的分区 ( 注意在急救模式下不支持 TAB , 很伤~ )</div><div class="line">Possible partitions are:</div><div class="line">Partition num: 0, Filesystem type is ext2fs, partition type 0x83</div><div class="line">Partition num: 1, Filesystem type unknown, partition type 0x82</div><div class="line">Partition num: 2, Filesystem type is ext2fs, partition type 0x83</div></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;0, 1, 2 代表分区编号，上面显示有文件系统，分区类型，像 83 就是 Linux 普通分区，82 是虚拟分区 SWAP ( 硬盘分区时的知识 )<br>&emsp;&emsp;这里不分 IDE / SATA 什么的，都用 hd 代表，hd0 代表第一块硬盘，hd0,0 代表第一块硬盘的第一个分区，系统中是用 sda1 代表第一块硬盘的第一个分区<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">grub&gt; root (hd0,0)/</div></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;输入 root (hd0,0)/ 这里按 TAB 键搜索内核在不在此分区上 ( boot 分区 )，如果有会输出下面信息 ( 试 83 的分区，82 是交换分区就没必要试了 )<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Possible files are: lost+found grub efi .VMlinuz-2.6.32-504.e16.x86_64.hmac System.map-2.6.32-504.e16.x86_64 config-2.6.32-504.x86_64 symvers-2.6.32-504.x86_64.gz VMlinuz-2.6.32-504.e16.x86_64 initramfs-2.6.32-504.e16.x86_64.img</div></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;如果可以看到 vmlinuz- 跟 initramfs- 字样，说明这就是我们想要的东西<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">grub&gt; root (hd0,2)/</div></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;下面是搜不到的显示, 仔细看看 ( 发现这是根分区哎~~ hd0,2 是根分区，我们用的是 SATA , 所以根分区是 /dev/sda3 很有用 ！)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Possible files are: lost+found boot dev proc sys var tmp etc root selinux lib64 usr bin home lib media mnt opt sbin srv .autorelabel</div></pre></td></tr></table></figure></p>
+<p><strong>绑定启动分区</strong>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">grub&gt; root (hd0,0) </div><div class="line">Filesystem type is ext2fs, partition type 0x83</div><div class="line"></div><div class="line">grub&gt; kernel /VMlinuz-2.6.32-504.e16.x86_64 ro root=/dev/sda3 # 指定启动内核，ro 只读模式，root= 指定根分区, 一定要指对 ( 可能如果 boot 没有单独分区不指定也是可以的 )</div><div class="line"></div><div class="line">grub&gt; initrd /initramfs-2.6.32-504.e16.x86_64.img # 这是内核映像吧 ( kernel 、initrd 都是上面搜出来的，输入一点点按 TAB 可以补全 )</div><div class="line"></div><div class="line">grub&gt; boot # 启动系统，手动编写 grub.conf 或恢复备份</div></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -744,7 +799,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#声明"><span class="nav-number">1.</span> <span class="nav-text">声明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#概述"><span class="nav-number">2.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#流程"><span class="nav-number">3.</span> <span class="nav-text">流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实际操作"><span class="nav-number">4.</span> <span class="nav-text">实际操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-ghost32-硬盘镜像导出"><span class="nav-number">4.1.</span> <span class="nav-text">1. ghost32 硬盘镜像导出</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-镜像格式转换"><span class="nav-number">4.2.</span> <span class="nav-text">2. 镜像格式转换</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-新建虚拟机"><span class="nav-number">4.3.</span> <span class="nav-text">3. 新建虚拟机</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-替换虚拟硬盘镜像"><span class="nav-number">4.4.</span> <span class="nav-text">4. 替换虚拟硬盘镜像</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-虚拟机设置"><span class="nav-number">4.5.</span> <span class="nav-text">5. 虚拟机设置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-开机测试"><span class="nav-number">4.6.</span> <span class="nav-text">6. 开机测试</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#附录"><span class="nav-number">5.</span> <span class="nav-text">附录</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#声明"><span class="nav-number">1.</span> <span class="nav-text">声明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#概述"><span class="nav-number">2.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#流程"><span class="nav-number">3.</span> <span class="nav-text">流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实际操作"><span class="nav-number">4.</span> <span class="nav-text">实际操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-ghost32-硬盘镜像导出"><span class="nav-number">4.1.</span> <span class="nav-text">1. ghost32 硬盘镜像导出</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-镜像格式转换"><span class="nav-number">4.2.</span> <span class="nav-text">2. 镜像格式转换</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-新建虚拟机"><span class="nav-number">4.3.</span> <span class="nav-text">3. 新建虚拟机</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-替换虚拟硬盘镜像"><span class="nav-number">4.4.</span> <span class="nav-text">4. 替换虚拟硬盘镜像</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-虚拟机设置"><span class="nav-number">4.5.</span> <span class="nav-text">5. 虚拟机设置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-开机测试"><span class="nav-number">4.6.</span> <span class="nav-text">6. 开机测试</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开机调试"><span class="nav-number">5.</span> <span class="nav-text">开机调试</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Error-1"><span class="nav-number">5.1.</span> <span class="nav-text">Error 1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Error-2"><span class="nav-number">5.2.</span> <span class="nav-text">Error 2</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#附录"><span class="nav-number">6.</span> <span class="nav-text">附录</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#附录I"><span class="nav-number">6.1.</span> <span class="nav-text">附录I</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#附录II"><span class="nav-number">6.2.</span> <span class="nav-text">附录II</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -791,7 +846,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共11.9k字</span>
+  <span class="post-count">博客全站共13.0k字</span>
 </div>
 
 
