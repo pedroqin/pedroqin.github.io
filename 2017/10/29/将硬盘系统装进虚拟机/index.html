@@ -124,7 +124,7 @@
 <meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/success.jpg">
 <meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/old_grub.jpg">
 <meta property="og:image" content="http://yoursite.com/2017/10/29/将硬盘系统装进虚拟机/new_grub.jpg">
-<meta property="og:updated_time" content="2017-10-30T15:44:13.722Z">
+<meta property="og:updated_time" content="2017-10-31T00:50:11.587Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="将硬盘系统装进虚拟机">
 <meta name="twitter:description" content="声明&amp;emsp;&amp;emsp;本文并非是虚拟机安装系统教程，而是将已经硬盘上在跑的系统通过操作安装进虚拟机。 概述&amp;emsp;&amp;emsp;在实验工作中实现“保存现有系统盘内镜像-&amp;gt;还原”的操作一般是利用dd、ghost32、Total Recovery等工具或专门的备盘设备进行系统镜像备份操作，然后在硬盘镜像损坏或操作失误以后再进行镜像还原，这个过程类似虚拟机“快照”功能。如果能将做好的硬盘中">
@@ -451,7 +451,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  1,915
+                  1,970
                 </span>
               
 
@@ -467,7 +467,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  7
+                  8
                 </span>
               
             </div>
@@ -546,8 +546,11 @@
 <img src="/2017/10/29/将硬盘系统装进虚拟机/old_grub.jpg" alt="old_grub" title="old_grub"> 
 <img src="/2017/10/29/将硬盘系统装进虚拟机/new_grub.jpg" alt="new_grub" title="new_grub"> 
 </li>
+<li><p>此时尝试 “ifconfig” 获取ip地址，若在保证虚拟机各个服务正常运行的情况下不能获取到ip，可尝试删除”/etc/udev/rules.d/70-persidtent-net.rules”,重启系统验证</p>
+<h4 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h4><h5 id="附录I"><a href="#附录I" class="headerlink" title="附录I"></a>附录I</h5><p>将 vmdk 文件转为 gho 格式命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ghost32.exe -clone,mode=create,src=example.vmdk,dst=example.gho -batch -sure</div></pre></td></tr></table></figure>
+</li>
 </ol>
-<h4 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h4><h5 id="附录I"><a href="#附录I" class="headerlink" title="附录I"></a>附录I</h5><p>将 vmdk 文件转为 gho 格式命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ghost32.exe -clone,mode=create,src=example.vmdk,dst=example.gho -batch -sure</div></pre></td></tr></table></figure></p>
 <h5 id="附录II"><a href="#附录II" class="headerlink" title="附录II"></a><span id="II">附录II</span></h5><p>Grub 下操作总结：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">grub&gt; root (hd0,) # 输入 root (hd0,) 这时按 TAB 键会打印出系统上所有的分区 ( 注意在急救模式下不支持 TAB , 很伤~ )</div><div class="line">Possible partitions are:</div><div class="line">Partition num: 0, Filesystem type is ext2fs, partition type 0x83</div><div class="line">Partition num: 1, Filesystem type unknown, partition type 0x82</div><div class="line">Partition num: 2, Filesystem type is ext2fs, partition type 0x83</div></pre></td></tr></table></figure></p>
 <p>&emsp;&emsp;0, 1, 2 代表分区编号，上面显示有文件系统，分区类型，像 83 就是 Linux 普通分区，82 是虚拟分区 SWAP ( 硬盘分区时的知识 )<br>&emsp;&emsp;这里不分 IDE / SATA 什么的，都用 hd 代表，hd0 代表第一块硬盘，hd0,0 代表第一块硬盘的第一个分区，系统中是用 sda1 代表第一块硬盘的第一个分区<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">grub&gt; root (hd0,0)/</div></pre></td></tr></table></figure></p>
 <p>&emsp;&emsp;输入 root (hd0,0)/ 这里按 TAB 键搜索内核在不在此分区上 ( boot 分区 )，如果有会输出下面信息 ( 试 83 的分区，82 是交换分区就没必要试了 )<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Possible files are: lost+found grub efi .VMlinuz-2.6.32-504.e16.x86_64.hmac System.map-2.6.32-504.e16.x86_64 config-2.6.32-504.x86_64 symvers-2.6.32-504.x86_64.gz VMlinuz-2.6.32-504.e16.x86_64 initramfs-2.6.32-504.e16.x86_64.img</div></pre></td></tr></table></figure></p>
@@ -844,7 +847,7 @@
 </div>
 <div class="theme-info">
   <div class="powered-by"></div>
-  <span class="post-count">博客全站共13.0k字</span>
+  <span class="post-count">博客全站共13.1k字</span>
 </div>
 
 
