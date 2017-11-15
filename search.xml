@@ -3,6 +3,69 @@
   
     
     <entry>
+      <title><![CDATA[利用系统安装盘修复系统误操作]]></title>
+      <url>/2017/11/15/%E5%88%A9%E7%94%A8%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85%E7%9B%98%E4%BF%AE%E5%A4%8D%E7%B3%BB%E7%BB%9F%E8%AF%AF%E6%93%8D%E4%BD%9C/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>&emsp;&emsp;在最近配置系统启动时意外导致了系统不能正常启动，身边又没有其他可以借助的系统来修改系统盘文件，于是想到了通过系统镜像自带的系统修复工具（Troubleshooting）进行修复。</p>
+</blockquote>
+<p><em>修复功能不限于本文中故障，只是示例，抛砖引玉</em><br><a id="more"></a></p>
+<h5 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h5><ol>
+<li>工具<ul>
+<li>U盘</li>
+<li>镜像刻录工具</li>
+<li>故障系统相应的镜像</li>
+</ul>
+</li>
+<li>将系统镜像烧录到U盘，U盘后将作为启动盘</li>
+</ol>
+<h5 id="故障情景还原"><a href="#故障情景还原" class="headerlink" title="故障情景还原"></a>故障情景还原</h5><ol>
+<li><p>进入系统，删除或启动<code>/etc/fstab</code>到其他位置，目的是使系统出现系统内不可恢复故障</p>
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/1.jpg" alt="1.jpg" title=""> 
+</li>
+<li><p>重启系统后系统出现故障，文件只读。如尝试 vim 打开文件，保存退出时无法保存</p>
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/2.jpg" alt="2.jpg" title=""> 
+</li>
+</ol>
+<h5 id="解决故障"><a href="#解决故障" class="headerlink" title="解决故障"></a>解决故障</h5><p>为方便示例，此处采用的是虚拟机，所以可通过远程挂载镜像实现安装盘启动，与U盘启动同理</p>
+<ol>
+<li><p>插入U盘，设为启动盘，启动镜像。</p>
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/3.jpg" alt="3.jpg" title=""> 
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/4.jpg" alt="4.jpg" title=""> 
+</li>
+<li><p>选择<code>Troubleshooting</code> 选项</p>
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/5.jpg" alt="5.jpg" title=""> 
+</li>
+<li><p>选择<code>Rescue a ...</code>选项，进入到如下界面</p>
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/6.jpg" alt="6.jpg" title=""> 
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/7.jpg" alt="7.jpg" title=""> 
+</li>
+<li><p>选择选项”1) Continue”，后点击”Enter”,此时我们就获得了一个shell窗口</p>
+</li>
+<li><p>可<code>lsblk</code>查看当前分区，输入<code>chroot /mnr/sysimage</code>,切换根目录为硬盘系统根目录，此时即可对系统进行相应操作</p>
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/8.jpg" alt="8.jpg" title=""> 
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/9.jpg" alt="9.jpg" title=""> 
+</li>
+<li><p>在此解决本机故障，将“/etc”目录下“fstab”文件还原，后<code>exit</code>退出，即可完成修复</p>
+<img src="/2017/11/15/利用系统安装盘修复系统误操作/10.jpg" alt="10.jpg" title=""></li>
+</ol>
+]]></content>
+      
+        <categories>
+            
+            <category> Linux </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[将硬盘系统装进虚拟机]]></title>
       <url>/2017/10/29/%E5%B0%86%E7%A1%AC%E7%9B%98%E7%B3%BB%E7%BB%9F%E8%A3%85%E8%BF%9B%E8%99%9A%E6%8B%9F%E6%9C%BA/</url>
       <content type="html"><![CDATA[<h4 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h4><p>&emsp;&emsp;本文并非是虚拟机安装系统教程，而是将已经硬盘上在跑的系统通过操作安装进虚拟机。</p>
