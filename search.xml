@@ -6,7 +6,7 @@
       <title><![CDATA[linux shell 算数运算/字符串操作总结]]></title>
       <url>/2017/12/05/linux-shell-%E7%AE%97%E6%95%B0%E8%BF%90%E7%AE%97-%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C%E6%80%BB%E7%BB%93/</url>
       <content type="html"><![CDATA[<blockquote>
-<p>最近在开发脚本工具时遇到不少对字符串/数字进行运算的问题，一通google/baidu 后，捎带做一下总结，以便以后使用。主要包含<code>expr</code>、<code>bc</code>、[]、(())、<strong>正则表达式</strong>之<code>grep</code>、<code>sed</code>、<code>awk</code>.</p>
+<p>最近在开发脚本工具时遇到不少对字符串/数字进行运算的问题，一通google/baidu 后，捎带做一下总结，以便以后使用。主要包含<code>expr</code>、<code>bc</code>、[]、(())、<strong>正则表达式</strong>之<code>grep</code>、<code>sed</code>、<code>awk</code></p>
 </blockquote>
 <a id="more"></a>
 <h3 id="算数运算"><a href="#算数运算" class="headerlink" title="算数运算"></a>算数运算</h3><h4 id="1-expr"><a href="#1-expr" class="headerlink" title="1. expr"></a>1. expr</h4><p>expr在使用中要注意一些书写，如表达式中<font color="#DC143C">变量和运算符号之间的空格及一些运算符号需要转义，还有一点需要记住，expr只适用于整数之间的运算！</font></p>
@@ -47,9 +47,13 @@ length 字符串字符串的长度
 <li>length<br>计算字符串的长度。  <img src="/2017/12/05/linux-shell-算数运算-字符串操作总结/str_length.jpg" alt="str_length.jpg" title="">   
 </li>
 </ol>
+<h4 id="let"><a href="#let" class="headerlink" title="let"></a>let</h4><h5 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h5><p><code>let arg [arg ...]</code> #arg代表运算式</p>
+<h5 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h5><p>自加操作:  <code>let no++</code><br>自减操作:  <code>let no--</code><br>简写形式:  <code>let no+=10</code>，<code>let no-=20</code>，分别等同于 <code>et no=no+10</code>，<code>let no=no-20</code></p>
+<h5 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#</span>!/bin/bash let </div><div class="line">a=5+4 b=9-3 </div><div class="line">echo $a $b</div></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#</span>!/bin/bash let </div><div class="line">"t1 = ((a = 5 + 3, b = 7 - 1, c = 15 - 4))" </div><div class="line">echo "t1 = $t1, a = $a, b = $b"</div></pre></td></tr></table></figure>
 <h4 id="bc"><a href="#bc" class="headerlink" title="bc"></a>bc</h4><p>bc是一种任意精度的计算语言，注意是一种语言，它提供了一些语法结构，比如条件判断、循环等，可以说是很强大的，但是我在实际中还没有找到需要这个用途的场合 。另外一个用途就是用来进行进制转换。</p>
 <p>上面我们介绍的expr之支持整数运算，但对于浮点运算就无能为力了，而且expr不能进行指数运算，而都有bc这些都不再话下。</p>
-<h5 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h5><p>我们先来了解几个有用的参数：</p>
+<h5 id="参数-1"><a href="#参数-1" class="headerlink" title="参数"></a>参数</h5><p>我们先来了解几个有用的参数：</p>
 <pre><code>-i 强制交互模式；
 
 -l 使用bc的内置库，bc里有一些数学库，对三角计算等非常实用；
