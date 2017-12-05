@@ -6,7 +6,7 @@
       <title><![CDATA[linux shell 算数运算/字符串操作总结]]></title>
       <url>/2017/12/05/linux-shell-%E7%AE%97%E6%95%B0%E8%BF%90%E7%AE%97-%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C%E6%80%BB%E7%BB%93/</url>
       <content type="html"><![CDATA[<blockquote>
-<p>最近在开发脚本工具时遇到不少对字符串/数字进行运算的问题，一通google/baidu 后，捎带做一下总结，以便以后使用。主要包含<code>expr</code>、<code>bc</code>、[]、(())、<strong>正则表达式</strong>之<code>grep</code>、<code>sed</code>、<code>awk</code></p>
+<p>最近在开发脚本工具时遇到不少对字符串/数字进行运算的问题，一通google/baidu 后，捎带做一下总结，以便以后使用。主要包含<code>expr</code>、<code>bc</code>、[]、(())、<strong>正则表达式</strong>之<code>grep</code>、<code>sed</code>、<code>awk</code>.</p>
 </blockquote>
 <a id="more"></a>
 <h3 id="算数运算"><a href="#算数运算" class="headerlink" title="算数运算"></a>算数运算</h3><h4 id="1-expr"><a href="#1-expr" class="headerlink" title="1. expr"></a>1. expr</h4><p>expr在使用中要注意一些书写，如表达式中<font color="#DC143C">变量和运算符号之间的空格及一些运算符号需要转义，还有一点需要记住，expr只适用于整数之间的运算！</font></p>
