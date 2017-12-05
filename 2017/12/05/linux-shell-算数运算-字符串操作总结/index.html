@@ -74,7 +74,7 @@
 <link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="随想," />
+  <meta name="keywords" content="Linux,Shell," />
 
 
 
@@ -90,20 +90,20 @@
 
 
 
-<meta name="description" content="title: my_first_Markdown_Blogdate: 2017-05-23 01:01:31categories: personaltags: - 随想 个人感想分享小故事工作6个月左右的时候听到一个有趣的小故事">
-<meta name="keywords" content="随想">
+<meta name="description" content="最近在开发脚本工具时遇到不少对字符串/数字进行运算的问题，一通google/baidu 后，捎带做一下总结，以便以后使用。主要包含expr、bc、[]、(())、正则表达式之grep、sed、awk">
+<meta name="keywords" content="Linux,Shell">
 <meta property="og:type" content="article">
-<meta property="og:title" content="my_first_Markdown_Blog">
-<meta property="og:url" content="http://yoursite.com/2017/05/23/my-first-markdown-blog/index.html">
+<meta property="og:title" content="linux shell 算数运算&#x2F;字符串操作总结">
+<meta property="og:url" content="http://yoursite.com/2017/12/05/linux-shell-算数运算-字符串操作总结/index.html">
 <meta property="og:site_name" content="Pedro&#39;s Blog">
-<meta property="og:description" content="title: my_first_Markdown_Blogdate: 2017-05-23 01:01:31categories: personaltags: - 随想 个人感想分享小故事工作6个月左右的时候听到一个有趣的小故事">
+<meta property="og:description" content="最近在开发脚本工具时遇到不少对字符串/数字进行运算的问题，一通google/baidu 后，捎带做一下总结，以便以后使用。主要包含expr、bc、[]、(())、正则表达式之grep、sed、awk">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://i1.piimg.com/1949/414797c82b962f42.jpg">
-<meta property="og:updated_time" content="2017-10-26T15:25:17.163Z">
+<meta property="og:image" content="http://yoursite.com/2017/12/05/linux-shell-算数运算-字符串操作总结/str_length.jpg">
+<meta property="og:updated_time" content="2017-12-05T16:47:40.408Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="my_first_Markdown_Blog">
-<meta name="twitter:description" content="title: my_first_Markdown_Blogdate: 2017-05-23 01:01:31categories: personaltags: - 随想 个人感想分享小故事工作6个月左右的时候听到一个有趣的小故事">
-<meta name="twitter:image" content="http://i1.piimg.com/1949/414797c82b962f42.jpg">
+<meta name="twitter:title" content="linux shell 算数运算&#x2F;字符串操作总结">
+<meta name="twitter:description" content="最近在开发脚本工具时遇到不少对字符串/数字进行运算的问题，一通google/baidu 后，捎带做一下总结，以便以后使用。主要包含expr、bc、[]、(())、正则表达式之grep、sed、awk">
+<meta name="twitter:image" content="http://yoursite.com/2017/12/05/linux-shell-算数运算-字符串操作总结/str_length.jpg">
 
 
 
@@ -131,13 +131,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/05/23/my-first-markdown-blog/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/12/05/linux-shell-算数运算-字符串操作总结/"/>
 
 
 
 
 
-  <title>my_first_Markdown_Blog | Pedro's Blog</title>
+  <title>linux shell 算数运算/字符串操作总结 | Pedro's Blog</title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -332,7 +332,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/23/my-first-markdown-blog/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/05/linux-shell-算数运算-字符串操作总结/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Pedro Qin">
@@ -349,7 +349,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">my_first_Markdown_Blog</h1>
+          <h1 class="post-title" itemprop="name headline">linux shell 算数运算/字符串操作总结</h1>
         
 
         <div class="post-meta">
@@ -361,8 +361,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-23T01:01:31-04:00">
-                2017-05-23
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-05T08:51:00-05:00">
+                2017-12-05
               </time>
             
 
@@ -384,8 +384,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/personal/" itemprop="url" rel="index">
-                    <span itemprop="name">personal</span>
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
                   </a>
                 </span>
 
@@ -415,7 +415,7 @@
                   <span class="post-meta-item-text">字数统计</span>
                 
                 <span title="字数统计">
-                  858
+                  2,800
                 </span>
               
 
@@ -431,7 +431,7 @@
                   <span class="post-meta-item-text">阅读时长</span>
                 
                 <span title="阅读时长">
-                  3
+                  12
                 </span>
               
             </div>
@@ -449,25 +449,129 @@
       
 
       
-        <p>title: my_first_Markdown_Blog<br>date: 2017-05-23 01:01:31<br>categories: personal<br>tags:</p>
-<h2 id="随想"><a href="#随想" class="headerlink" title="- 随想 "></a>- 随想 </h2><h3 id="个人感想"><a href="#个人感想" class="headerlink" title="个人感想"></a>个人感想</h3><h4 id="分享小故事"><a href="#分享小故事" class="headerlink" title="分享小故事"></a>分享小故事</h4><p>工作6个月左右的时候听到一个有趣的小故事<br><a id="more"></a></p>
-<blockquote>
-<p>镇上有一个富人，有一天听闻大城市回来一位在全国有名的大餐厅工作了好多年厨师，便高薪聘请做自己的私人厨师。富人按市里的规格给厨师配置了一套完整的厨房设施，然后让厨师给按市里的菜谱做菜。一眨眼俩小时上来一桌子菜，老板迫不及待拿起筷子尝了起来，刚吃第一口，眉头一皱，接着尝第二个，第三个。。。<br>老板不解的把厨师叫出来问：你这菜怎么做的，怎么这么难吃，不是大城市里大餐馆的厨师么，怎么做饭做的不如我的乡下厨师呢还</p>
-<p>答：我在市里餐馆的时候是给餐馆大厨打下手的，从来没做过饭</p>
-<p>问：打下手也不至于做的这么难吃吧，打下手都干什么呢</p>
-<p>答：剥洋葱，这些年一直在剥洋葱</p>
+        <blockquote>
+<p>最近在开发脚本工具时遇到不少对字符串/数字进行运算的问题，一通google/baidu 后，捎带做一下总结，以便以后使用。主要包含<code>expr</code>、<code>bc</code>、[]、(())、<strong>正则表达式</strong>之<code>grep</code>、<code>sed</code>、<code>awk</code></p>
 </blockquote>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>毕业一年多，也进入公司工作了一年，很庆幸刚毕业就有能进大公司工作，这里的工作环境，福利待遇，对一个刚毕业的本科生来说都是很友好的。这一年里，我迅速的学习掌握工作技能，以尽快的掌握和胜任工作的内容。</p>
-<p>进步不止一点半点。所谓的进步不止在<code>linux</code>,<code>服务器</code>相关知识的学习和应用，更重要的是对工作的整体认识和把握，以及处理工作中各类问题的应变力和控制力。最最最重要的是对自己职业规划的探索和认识。</p>
-<p>以前常常听到一种说法</p>
-<blockquote>
-<p>你毕业以后从事方向很有可能成为你未来事业发展方向</p>
-</blockquote>
-<p>姑且不论其是否正确，单对个人来说还是有其道理的，从毕业前大三大四实习到毕业后选择的职业方向，从最开始的不自信和探索，到对职业方向和自己的认同，逐步确立起了自己的发展方向。<strong>这无疑是我一年来最大的收获</strong></p>
-<h4 id="展望"><a href="#展望" class="headerlink" title="展望"></a>展望</h4><p>对自己的发展方向有了初步认识以后，接下来就是向发展方向努力进步了。都说<em>刚毕业的前几年最应该努力学习</em>这一点不假，身边的人有的在考验有的在考证，无疑是为了将来有更好的出路。反倒自己浑浑噩噩了大半年，学习效率低下，实在是惭愧。</p>
-<p>参加工作这一年多里，Team来来走走差不多换了一拨人，其中有一个前辈的话深深警醒着我。我问他来了这么久进步大么。他回答说<em>刚来的一年里学的东西多，进步挺大的，后来就是带案子做案子，也没有什么进步</em>，这不是在说以后的我么，我现在的菜鸟水平不就是那个刚学会剥洋葱的人（连洋葱还没有剥熟练），所以，<strong>努力学习寻求更大的发展空间才是硬道理啊！！！</strong></p>
-<h5 id="但是，让我先把洋葱剥熟练了吧！！！"><a href="#但是，让我先把洋葱剥熟练了吧！！！" class="headerlink" title="但是，让我先把洋葱剥熟练了吧！！！"></a>但是，让我先把洋葱剥熟练了吧！！！</h5><p><a href="constmyheart@163.com">email to me</a></p>
-<p><img src="http://i1.piimg.com/1949/414797c82b962f42.jpg" width="200" hight="200"></p>
+<a id="more"></a>
+<h3 id="算数运算"><a href="#算数运算" class="headerlink" title="算数运算"></a>算数运算</h3><h4 id="1-expr"><a href="#1-expr" class="headerlink" title="1. expr"></a>1. expr</h4><p>expr在使用中要注意一些书写，如表达式中<font color="#DC143C">变量和运算符号之间的空格及一些运算符号需要转义，还有一点需要记住，expr只适用于整数之间的运算！</font></p>
+<h5 id="1-1-表达式："><a href="#1-1-表达式：" class="headerlink" title="1.1 表达式："></a>1.1 表达式：</h5><p>  expr的help文档中关于表达式部分如下：</p>
+<pre><code>ARG1 | ARG2       若ARG1 的值不为0 或者为空，则返回ARG1，否则返回ARG2
+
+ARG1 &amp; ARG2       若两边的值都不为0 或为空，则返回ARG1，否则返回 0
+
+ARG1 &lt; ARG2       ARG1 小于ARG2
+ARG1 &lt;= ARG2      ARG1 小于或等于ARG2
+ARG1 = ARG2       ARG1 等于ARG2
+ARG1 != ARG2      ARG1 不等于ARG2
+ARG1 &gt;= ARG2      ARG1 大于或等于ARG2
+ARG1 &gt; ARG2       ARG1 大于ARG2
+
+ARG1 + ARG2       计算 ARG1 与ARG2 相加之和
+ARG1 - ARG2       计算 ARG1 与ARG2 相减之差
+
+ARG1 * ARG2       计算 ARG1 与ARG2 相乘之积
+ARG1 / ARG2       计算 ARG1 与ARG2 相除之商
+ARG1 % ARG2       计算 ARG1 与ARG2 相除之余数
+</code></pre><p>示例：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@rhat650 ~]# expr 1 + 2 - 3 \* 4 / 5 + 1</div><div class="line">2</div></pre></td></tr></table></figure><br>通过结果相信你已知道expr的计算规律，它与我们日常所理解的数学表达式一样，括号的优先级最高，然后是“*”、“/”，而且每个数或符号都需要用空格分隔，结果也是整数。</p>
+<h5 id="1-2-字符串"><a href="#1-2-字符串" class="headerlink" title="1.2 字符串"></a>1.2 字符串</h5><pre><code>match 字符串 表达式等于&quot;字符串 :表达式&quot;
+substr 字符串 偏移量 长度替换字符串的子串，偏移的数值从 1 起计
+index 字符串 字符在字符串中发现字符的地方建立下标，或者标0
+length 字符串字符串的长度
+</code></pre><ol>
+<li><p>match<br>expr中的<code>expr match $string substring</code>命令在string字符串中匹配substring字符串（substring字符串可以是正则表达式），然后返回匹配到的substring字符串的长度，若找不到则返回0。<br>示例：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@rhat650 ~]# str="123 hello wrold 456"</div><div class="line">[root@rhat650 ~]# expr match "$str" .*w</div><div class="line">11</div></pre></td></tr></table></figure>  
+<p>.*5匹配了6个字符。</p>
+</li>
+<li><p>substr<br>在shell中可以用{string:position}和{string:position:length}进行对string字符串中字符的抽取。第一种是从position位置开始抽取直到字符串结束，第二种是从position位置开始抽取长度为length的子串。而用expr中的<code>expr substr stringposition $length</code>同样能实现上述功能。<br>实例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@rhat650 ~]# str="123 hello wrold 456"</div><div class="line">[root@rhat650 ~]# echo $&#123;str:5&#125;</div><div class="line">ello wrold 456</div><div class="line">[root@rhat650 ~]# echo $&#123;str:5:3&#125;</div><div class="line">ell</div><div class="line">[root@rhat650 ~]# expr substr "$str" 5 3</div><div class="line">hel</div></pre></td></tr></table></figure>  
+<p>从中可以看出{string:position}和{string:position:length}从0开始计数，而expr substr stringposition $length从1开始。</p>
+</li>
+<li><p>index<br>expr中的<code>expr index string substring</code>索引命令功能在字符串string上找出substring中字符第一次出现的位置，若找不到则expr index返回0。注意它匹配的是字符而非字符串。<br>实例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@rhat650 ~]# str="123 hello wrold 456"</div><div class="line">[root@rhat650 ~]# expr index "$str" c</div><div class="line">0</div><div class="line">[root@rhat650 ~]# expr index "$str" o</div><div class="line">9</div></pre></td></tr></table></figure></li>
+<li>length<br>计算字符串的长度。  <img src="/2017/12/05/linux-shell-算数运算-字符串操作总结/str_length.jpg" alt="str_length.jpg" title="">   
+</li>
+</ol>
+<h4 id="bc"><a href="#bc" class="headerlink" title="bc"></a>bc</h4><p>bc是一种任意精度的计算语言，注意是一种语言，它提供了一些语法结构，比如条件判断、循环等，可以说是很强大的，但是我在实际中还没有找到需要这个用途的场合 。另外一个用途就是用来进行进制转换。</p>
+<p>上面我们介绍的expr之支持整数运算，但对于浮点运算就无能为力了，而且expr不能进行指数运算，而都有bc这些都不再话下。</p>
+<h5 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h5><p>我们先来了解几个有用的参数：</p>
+<pre><code>-i 强制交互模式；
+
+-l 使用bc的内置库，bc里有一些数学库，对三角计算等非常实用；
+
+-q 进入bc交互模式时不再输出版本等多余的信息。
+</code></pre><h5 id="特殊变量"><a href="#特殊变量" class="headerlink" title="特殊变量"></a>特殊变量</h5><p>ibase，obase 用于<font color="#DC143C">进制转换</font>，ibase是输入的进制，obase是输出的进制，默认是十进制；</p>
+<p>scale 小数保留位数，默认保留0位。</p>
+<h5 id="交互模式"><a href="#交互模式" class="headerlink" title="交互模式"></a>交互模式</h5><p>在shell命令行直接输入bc及能进入bc语言的交互模式。</p>
+<h5 id="非交互模式"><a href="#非交互模式" class="headerlink" title="非交互模式"></a>非交互模式</h5><p>bc也可以进行非交互式的运算，方法是与echo一起使用。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@rhat650 ~]# echo "scale=3;1+2-3+5/3^2"|bc  //*优先级^ &gt; *、/ &gt; +、- */</div><div class="line">.555</div><div class="line">[root@rhat650 ~]# echo "scale=3;1+1+2-3+5/3^2"|bc</div><div class="line">1.555</div></pre></td></tr></table></figure></p>
+<h4 id="amp"><a href="#amp" class="headerlink" title="(()) &amp; []"></a>(()) &amp; []</h4><p>这两个在shell中比较常见，这两个和expr命令有些类似，也是用于整数计算。<br>他们支持的运算符号有如下：</p>
+<pre><code>|    位或
++ ||   若前后两者都不为0，则返回1，否则返回0
+ &amp;  位与
++ &amp;&amp;  若前者为0，不再对后者进行处理，否则对后者处理，后者不为0时返回1
+ &lt; 
+ &lt;=
+ ==
+ !=
+ &gt;=
+ &gt; 
+ + 
+ - 
+ * 
+ / 
+ %
+</code></pre><p>带+号的两个运算符其实是shell支持的运算符。</p>
+<p>这两个对与expr的优点是：运算符号全部不需要转义。</p>
+<p>示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@rhat650 ~]# echo $((2+5))</div><div class="line">7</div><div class="line">[root@rhat650 ~]# echo $((2%5))</div><div class="line">2</div><div class="line">[root@rhat650 ~]# echo $[2*5]</div><div class="line">10</div></pre></td></tr></table></figure>
+<h3 id="字符串操作"><a href="#字符串操作" class="headerlink" title="字符串操作"></a>字符串操作</h3><h4 id="grep"><a href="#grep" class="headerlink" title="grep"></a>grep</h4><p> 传统的 grep 程序, 在没有参数的情况下, 只输出符合 RE 字符串之句子.</p>
+<h5 id="常见参数"><a href="#常见参数" class="headerlink" title="常见参数"></a>常见参数</h5><pre><code>-v: 逆反模示, 只输出&quot;不含&quot; RE 字符串之句子.
+-r: 递归模式, 可同时处理所有层级子目录里的文件.
+-q: 静默模式, 不输出任何结果(stderr 除外. 常用以获取 return value, 符合为 true, 否则为false .)
+-i: 忽略大小写.
+-w: 整词比对, 类似 &lt;word&gt; .
+-n: 同时输出行号.
+-c: 只输出符合比对的行数.
+-l: 只输出符合比对的文件名称.
+-o: 只输出符合 RE 的字符串. (gnu 新版独有, 不见得所有版本都支持.)
+-E: 切换为 egrep .  
+</code></pre><h5 id="正则总结"><a href="#正则总结" class="headerlink" title="正则总结"></a>正则总结</h5><pre><code>^word     表示带搜寻的字符串(word)在行首
+word$     表示带搜寻的字符串(word)在行尾
+.         表示1个任意字符
+\         表示转义字符，在特殊字符前加\会将原本的特殊字符意义去除
+*         表示重复0到无穷多个前一个RE(正则表达式)字符
+[list]    表示搜索含有list的字符串
+[n1-n2]   表示搜索指定的字符串范围,例如[0-9] [a-z] [A-Z]等
+[^list]   表示反向字符串的范围,例如[0-9]表示非数字字符，[A-Z]表示非大写字符范围
+\{n,m\}   表示找出n到m个前一个RE字符
+\{n,\}    表示n个以上的前一个RE字符
+</code></pre><h4 id="egrep"><a href="#egrep" class="headerlink" title="egrep"></a>egrep</h4><p>为 grep 的扩充版本, 改良了许多传统 grep 不能或不便的操作. 比方说:</p>
+<ul>
+<li>grep 之下不支持 ? 与 + 这两种 modifier, 但 egrep 则可.</li>
+<li>grep 不支持 a|b 或 (abc|xyz) 这类”或一”比对, 但 egrep 则可.</li>
+<li>grep 在处理 {n,m} 时, 需用 { 与 } 处理, 但 egrep 则不需.  </li>
+</ul>
+<h5 id="egrep-grep-E正则总结"><a href="#egrep-grep-E正则总结" class="headerlink" title="egrep/grep -E正则总结:"></a>egrep/grep -E正则总结:</h5><pre><code>+    表示重复一个或一个以上的前一个RE字符
+范例:egrep &apos;go+d&apos; test.txt
+表示搜寻(god)(good)(goood)...等等字符串，o+代表[一个以上的o]  
+?    表示重复零个或一个的前一个RE字符
+范例:egrep &apos;go?d&apos; test.txt
+表示搜寻(gd)(god)字符串，o?代表[空的或1个o]
+注:egrep下&apos;go+d&apos;和&apos;go?d&apos;的结果集合就等于grep下的&apos;go*d&apos;
+|    表示用或(or)的方式找出数个字符串
+范例:egrep &apos;gd|good|dog&apos; test.txt
+表示搜寻(gd)或(god)或(god)字符串，|代表或
+()    表示找出群组字符串
+范例:egrep &apos;g(la|oo)d&apos; test.txt
+表示搜寻(glad)或(good)字符串
+()    +表示找出多个重复群组的判别
+范例: echo &apos;AxyzxyzxyzxyzxyzC&apos;|egrep &apos;A(xyz)+C&apos;
+表示搜寻开头是A结尾是C，中间有一个以上的&apos;xyz&apos;字符串
+</code></pre><h4 id="fgrep"><a href="#fgrep" class="headerlink" title="fgrep"></a>fgrep</h4><p> 不作 RE 处理, 表达式仅作一般字符串处理, 所有 meta 均失去功能.</p>
+<h4 id="sed"><a href="#sed" class="headerlink" title="sed"></a>sed</h4><p> 获取ip<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ifconfig eth0 |grep 'inet addr'</div></pre></td></tr></table></figure><br>将IP前面的部分予以删除<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ifconfig eth0 |grep 'inet addr'| sed 's/^.*addr://g'</div></pre></td></tr></table></figure><br>将IP后面的部分删除<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ifconfig eth0 |grep 'inet addr'| sed 's/^.*addr://g'| sed 's/Bcast:.*$//g'</div></pre></td></tr></table></figure><br>示例：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">root@RaspberryPi:~# ifconfig wlan0|grep 'inet addr'</div><div class="line">          inet addr:192.168.0.156  Bcast:192.168.0.255  Mask:255.255.255.0</div><div class="line">root@RaspberryPi:~# ifconfig wlan0|grep 'inet addr'|sed 's/^.*addr://g'</div><div class="line">192.168.0.156  Bcast:192.168.0.255  Mask:255.255.255.0</div><div class="line">root@RaspberryPi:~# ifconfig wlan0|grep 'inet addr'|sed 's/^.*addr://g'|sed 's/Bcast.*$//g'</div><div class="line">192.168.0.156</div><div class="line">root@RaspberryPi:~# ifconfig wlan0|sed -rn 's#^.*dr:(.*)B.*$#\1#gp'</div><div class="line">192.168.0.156</div><div class="line">root@RaspberryPi:~# ifconfig wlan0|awk -F '[ :]+' 'NR==2 &#123;print $4&#125;'</div><div class="line">192.168.0.156</div></pre></td></tr></table></figure></p>
+<h4 id="awk"><a href="#awk" class="headerlink" title="awk"></a>awk</h4><h5 id="示例1"><a href="#示例1" class="headerlink" title="示例1"></a>示例1</h5><p>用last取出登陆数据前五行<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">root@RaspberryPi:~# last -n 5</div><div class="line">root     pts/0        192.168.0.110    Wed Dec  6 00:13   still logged in</div><div class="line">reboot   system boot  4.1.19-v7+       Thu Jan  1 08:00   still running</div><div class="line">root     pts/0        192.168.0.110    Mon Dec  4 23:19 - down  (1+00:53)</div><div class="line">reboot   system boot  4.1.19-v7+       Thu Jan  1 08:00 - 00:12 (17505+16:11)</div><div class="line">root     pts/0        192.168.0.110    Mon Dec  4 22:33 - crash (-17504+-14:-33)</div><div class="line"></div><div class="line">wtmp begins Mon Dec  4 21:49:01 2017</div></pre></td></tr></table></figure><br>取出账号与登陆者IP，且账号与IP之间以TAB隔开<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">root@RaspberryPi:~# last -n 5 |awk '&#123;print $1 "\t" $3&#125;'</div><div class="line">root    192.168.0.110</div><div class="line">reboot  boot</div><div class="line">root    192.168.0.110</div><div class="line">reboot  boot</div><div class="line">root    192.168.0.110</div><div class="line"></div><div class="line">wtmp    Mon</div></pre></td></tr></table></figure><br>注:$1代表用空格或TAB隔开的第一个字段，以此类推。。<br>  $0代表该行全部字段<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">root@RaspberryPi:~#  last -n 5 |awk '&#123;print $1 "\t lines:" NR "\t columes:" NF&#125;'</div><div class="line">root     lines:1         columes:10</div><div class="line">reboot   lines:2         columes:10</div><div class="line">root     lines:3         columes:10</div><div class="line">reboot   lines:4         columes:11</div><div class="line">root     lines:5         columes:10</div><div class="line">         lines:6         columes:0</div><div class="line">wtmp     lines:7         columes:7</div></pre></td></tr></table></figure><br>注: NF代表每一行的$0的字段总数<br>   NR代表目前awk所处的是第几行数据<br>   FS代表目标分隔符，默认为空格  </p>
+<h5 id="示例2"><a href="#示例2" class="headerlink" title="示例2"></a>示例2</h5><p>在/etc/passwd中以:来作为分段字符，则我们要查阅第三栏小于10以下的数据，并只列出账号与第三栏<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">root@RaspberryPi:~# cat /etc/passwd | awk '&#123;FS=":"&#125; $3&lt;10 &#123;print $1 "\t \t"$3&#125;'</div><div class="line">root:x:0:0:root:/root:/bin/bash</div><div class="line">daemon          1</div><div class="line">bin             2</div><div class="line">sys             3</div><div class="line">sync            4</div><div class="line">games           5</div><div class="line">man             6</div><div class="line">lp              7</div><div class="line">mail            8</div><div class="line">news            9</div></pre></td></tr></table></figure><br>注：查询结果未显示第一行数据，是因为我们虽然定义了FS=”:” 但却只能在第二行生效<br>想读取第一行就需要BEGIN这个关键词:<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">root@RaspberryPi:~# cat /etc/passwd | awk 'BEGIN &#123;FS=":"&#125; $3&lt;10 &#123;print $1 "\t \t"$3&#125;'</div><div class="line">root            0</div><div class="line">daemon          1</div><div class="line">bin             2</div><div class="line">sys             3</div><div class="line">sync            4</div><div class="line">games           5</div><div class="line">man             6</div><div class="line">lp              7</div><div class="line">mail            8</div><div class="line">news            9</div></pre></td></tr></table></figure></p>
+<h5 id="示例3"><a href="#示例3" class="headerlink" title="示例3"></a>示例3</h5><p>统计TCP连接状态<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">root@RaspberryPi:~#  netstat -na | awk '/^tcp/ &#123;++S[$NF]&#125; END &#123;for(a in S) print a, S[a]&#125;'</div><div class="line">LISTEN 15</div><div class="line">ESTABLISHED 2</div></pre></td></tr></table></figure><br><code>/^tcp/</code><br>过滤出以tcp开头的行，“^”为正则表达式用法，以…开头，这里是过滤出以tcp开头的行。<br><code>S[]</code><br>定义了一个名叫S的数组，在awk中，数组下标通常从 1 开始，而不是 0。<br><code>NF</code><br>当前记录里域个数，默认以空格分隔，如上所示的记录，NF域个数等于<br><code>$NF</code><br>表示一行的最后一个域的值，如上所示的记录，$NF也就是$6，表示第6个字段的值，也就是SYN_RECV或TIME_WAIT等。<br><code>S[$NF]</code><br>表示数组元素的值，如上所示的记录，就是S[TIME_WAIT]状态的连接数<br><code>++S[$NF]</code><br>表示把某个数加一，如上所示的记录，就是把S[TIME_WAIT]状态的连接数加一<br>结果就是显示S数组中最终的数组值<br>例：S[TIME_WAIT]=最终值 S[TESTABLISHED]=最终值<br><code>END</code><br><code>for(key in S)</code><br>遍历S[]数组<br><code>print key,”\t”,S[key]</code><br>打印数组的键和值，中间用\t制表符分割，显示好一些。</p>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><p><a href="https://www.cnblogs.com/snowsolf/p/3325235.html" target="_blank" rel="external">https://www.cnblogs.com/snowsolf/p/3325235.html</a><br><a href="http://www.jb51.net/article/54961.htm" target="_blank" rel="external">http://www.jb51.net/article/54961.htm</a><br><a href="http://blog.csdn.net/joby1981/article/details/19346279" target="_blank" rel="external">http://blog.csdn.net/joby1981/article/details/19346279</a></p>
 
       
     </div>
@@ -514,7 +618,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/随想/" rel="tag"><i class="fa fa-tag"></i> 随想</a>
+            <a href="/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+          
+            <a href="/tags/Shell/" rel="tag"><i class="fa fa-tag"></i> Shell</a>
           
         </div>
       
@@ -527,15 +633,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/11/15/利用系统安装盘修复系统误操作/" rel="next" title="利用系统安装盘修复系统误操作">
+                <i class="fa fa-chevron-left"></i> 利用系统安装盘修复系统误操作
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/07/26/Wechat_linux_Shell/" rel="prev" title="Wechat_linux_Shell">
-                Wechat_linux_Shell <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -709,7 +815,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#随想"><span class="nav-number">1.</span> <span class="nav-text">- 随想 </span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#个人感想"><span class="nav-number">1.1.</span> <span class="nav-text">个人感想</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#分享小故事"><span class="nav-number">1.1.1.</span> <span class="nav-text">分享小故事</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">1.1.2.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#展望"><span class="nav-number">1.1.3.</span> <span class="nav-text">展望</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#但是，让我先把洋葱剥熟练了吧！！！"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">但是，让我先把洋葱剥熟练了吧！！！</span></a></li></ol></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#算数运算"><span class="nav-number">1.</span> <span class="nav-text">算数运算</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-expr"><span class="nav-number">1.1.</span> <span class="nav-text">1. expr</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-1-表达式："><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 表达式：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-2-字符串"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.2 字符串</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bc"><span class="nav-number">1.2.</span> <span class="nav-text">bc</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#参数"><span class="nav-number">1.2.1.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#特殊变量"><span class="nav-number">1.2.2.</span> <span class="nav-text">特殊变量</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#交互模式"><span class="nav-number">1.2.3.</span> <span class="nav-text">交互模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#非交互模式"><span class="nav-number">1.2.4.</span> <span class="nav-text">非交互模式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#amp"><span class="nav-number">1.3.</span> <span class="nav-text">(()) & []</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串操作"><span class="nav-number">2.</span> <span class="nav-text">字符串操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#grep"><span class="nav-number">2.1.</span> <span class="nav-text">grep</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#常见参数"><span class="nav-number">2.1.1.</span> <span class="nav-text">常见参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#正则总结"><span class="nav-number">2.1.2.</span> <span class="nav-text">正则总结</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#egrep"><span class="nav-number">2.2.</span> <span class="nav-text">egrep</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#egrep-grep-E正则总结"><span class="nav-number">2.2.1.</span> <span class="nav-text">egrep/grep -E正则总结:</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#fgrep"><span class="nav-number">2.3.</span> <span class="nav-text">fgrep</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sed"><span class="nav-number">2.4.</span> <span class="nav-text">sed</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#awk"><span class="nav-number">2.5.</span> <span class="nav-text">awk</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#示例1"><span class="nav-number">2.5.1.</span> <span class="nav-text">示例1</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#示例2"><span class="nav-number">2.5.2.</span> <span class="nav-text">示例2</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#示例3"><span class="nav-number">2.5.3.</span> <span class="nav-text">示例3</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文档"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
             
 
           </div>
