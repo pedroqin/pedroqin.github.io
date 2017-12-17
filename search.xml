@@ -3,6 +3,154 @@
   
     
     <entry>
+      <title><![CDATA[Linux性能评估]]></title>
+      <url>/2017/12/17/Linux%E6%80%A7%E8%83%BD%E8%AF%84%E4%BC%B0/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>之前在产品测试中遇到产品server上传log、过站 Fail 等问题，在排错过程中耽误不少时间，故在此做总结已做备用。另：其中使用命令只是演示用，抛砖引玉，更多功能请自行探索  </p>
+</blockquote>
+<p><strong>主要命令：iostat free sar pidstat vmstat netstat mtr traceroute</strong><br><a id="more"></a></p>
+<h4 id="一、-CPU-篇"><a href="#一、-CPU-篇" class="headerlink" title="一、 CPU 篇"></a>一、 CPU 篇</h4><h5 id="1-1-查看cpu信息"><a href="#1-1-查看cpu信息" class="headerlink" title="1.1 查看cpu信息"></a>1.1 查看cpu信息</h5><p>通过如下命令获取cpu信息，如：cpu数（physical id +1 ）、cpu核数（cpu cores ）等<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">cat /proc/cpuinfo</div><div class="line">...</div><div class="line">processor       : 3</div><div class="line">vendor_id       : GenuineIntel</div><div class="line">cpu family      : 6</div><div class="line">model           : 26</div><div class="line">model name      : Intel(R) Xeon(R) CPU           L5520  @ 2.27GHz</div><div class="line">stepping        : 5</div><div class="line">cpu MHz         : 2260.381</div><div class="line">cache size      : 8192 KB</div><div class="line">physical id     : 0</div><div class="line">siblings        : 4</div><div class="line">core id         : 3</div><div class="line">cpu cores       : 4</div><div class="line">apicid          : 3</div><div class="line">initial apicid  : 3</div><div class="line">fpu             : yes</div><div class="line">fpu_exception   : yes</div><div class="line">cpuid level     : 11</div><div class="line">wp              : yes</div><div class="line">flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov onstant_tsc rep_good unfair_spinlock pni ssse3 cx16 sse4_1 sse4_2 popcnt hypervi</div><div class="line">bogomips        : 4520.76</div><div class="line">clflush size    : 64</div><div class="line">cache_alignment : 64</div><div class="line">address sizes   : 40 bits physical, 48 bits virtual</div><div class="line">power management:</div></pre></td></tr></table></figure><br>通过结果可知：我的 Hyper-V 中Server 用的CPU为L5520，没有开启超线程，4核4线程，一颗CPU，所以CPU是4核的.</p>
+<h5 id="1-2-vmstat"><a href="#1-2-vmstat" class="headerlink" title="1.2 vmstat"></a>1.2 vmstat</h5><p><code>vmstat 3</code>：(每3秒输出一次)<br><code>vmstat 3 5</code>：(每3秒输出一次，输出5次)<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# vmstat  3 5</div><div class="line">procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----</div><div class="line"> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st</div><div class="line"> 0  0      0 7317072  27040 685444    0    0    28    43 1017   24  0  0 99  0  0</div><div class="line"> 0  0      0 7317056  27040 685444    0    0     0     0 4007   54  0  0 100  0  0</div><div class="line"> 0  0      0 7317048  27040 685444    0    0     0     0 4005   53  0  0 100  0  0</div><div class="line"> 0  0      0 7317048  27040 685444    0    0     0     0 4001   50  0  0 100  0  0</div><div class="line"> 0  0      0 7317056  27040 685444    0    0     0     0 4024   52  0  0 100  0  0</div><div class="line"></div></pre></td></tr></table></figure><br>结果解析：</p>
+<ul>
+<li><p><code>r</code>表示运行队列(就是说多少个进程真的分配到CPU)，我测试的服务器目前CPU比较空闲，没什么程序在跑，当这个值超过了CPU核数，就会出现CPU瓶颈了。如果运行队列过大，表示你的CPU很繁忙，一般会造成CPU使用率很高。</p>
+</li>
+<li><p><code>b</code> 表示阻塞的进程,进程阻塞。</p>
+</li>
+<li><p><code>swpd</code> 虚拟内存已使用的大小，如果大于0，表示你的机器物理内存不足了，如果不是程序内存泄露的原因，那么你该升级内存了或者把耗内存的任务迁移到其他机器。</p>
+</li>
+<li><p><code>free</code>   空闲的物理内存的大小，我的机器内存总共8G，剩余7G多。</p>
+</li>
+<li><p><code>buff</code>   <strong>Linux/Unix系统是用来存储，目录里面有什么内容，权限等的缓存</strong>，我本机占用不到300M</p>
+</li>
+<li><p><code>cache</code> <strong>cache直接用来记忆我们打开的文件,给文件做缓冲</strong>，我本机大概占用600多M(把空闲的物理内存的一部分拿来做文件和目录的缓存，是为了提高 程序执行的性能，当程序使用内存时，buffer/cached会很快地被使用。)</p>
+</li>
+<li><p><code>si</code>  每秒从磁盘读入虚拟内存的大小，如果这个值大于0，表示物理内存不够用或者内存泄露了，要查找耗内存进程解决掉。我的机器内存充裕，一切正常。</p>
+</li>
+<li><p><code>so</code>  每秒虚拟内存写入磁盘的大小，如果这个值大于0，同上。</p>
+</li>
+<li><p><code>bi</code>  块设备每秒接收的块数量，这里的块设备是指系统上所有的磁盘和其他块设备，默认块大小是1024byte，我本机上没什么IO操作，所以一直是0。</p>
+</li>
+<li><p><code>bo</code> 块设备每秒发送的块数量，例如我们读取文件，bo就要大于0。bi和bo一般都要接近0，不然就是IO过于频繁，需要调整。</p>
+</li>
+<li><p><code>in</code> 每秒CPU的中断次数，包括时间中断。</p>
+</li>
+<li><p><code>cs</code> 每秒上下文切换次数，例如我们调用系统函数，就要进行上下文切换，线程的切换，也要进程上下文切换，这个值要越小越好，太大了，要考虑调低线程或者进程的数目,例如在apache和nginx这种web服务器中，我们一般做性能测试时会进行几千并发甚至几万并发的测试，选择web服务器的进程可以由进程或者线程的峰值一直下调，压测，直到cs到一个比较小的值，这个进程和线程数就是比较合适的值了。系统调用也是，每次调用系统函数，我们的代码就会进入内核空间，导致上下文切换，这个是很耗资源，也要尽量避免频繁调用系统函数。上下文切换次数过多表示你的CPU大部分浪费在上下文切换，导致CPU干正经事的时间少了，CPU没有充分利用，是不可取的。</p>
+</li>
+<li><p><code>us</code> 用户CPU时间。</p>
+</li>
+<li><p><code>sy</code> 系统CPU时间，如果太高，表示系统调用时间长，例如是IO操作频繁。</p>
+</li>
+<li><p><code>id</code> 空闲 CPU时间，一般来说，id + us + sy = 100,id是空闲CPU占比，us是用户CPU使用占比，sy是系统CPU使用占比。</p>
+</li>
+<li><p><code>wt</code> 等待IO CPU时间。</p>
+</li>
+</ul>
+<p>若“us”+“sy”值，较大，说明CPU负载较大。<br>若“wa”较大，说明IO存在比较严重的等待，需查看是否是磁盘大量的读写IO导致，可通过更快的磁盘（SSD）或者磁盘调优（raid）尝试改进</p>
+<h5 id="1-3-iostat-c"><a href="#1-3-iostat-c" class="headerlink" title="1.3 iostat -c"></a>1.3 iostat -c</h5><p><code>iostat</code>命令需要安装“sysstat”包，非系统自带<br><code>iostat -c/m/d</code> ： 查看CPU/Mem/HDD使用情况<br><code>iostat -c/m/d 2 3</code>： 每隔2秒查看CPU/Mem/HDD使用情况，共查看3次<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# iostat -c 2 3</div><div class="line">Linux 2.6.32-431.el6.x86_64 (Centos)    12/17/2017      _x86_64_        (4 CPU)</div><div class="line"></div><div class="line">avg-cpu:  %user   %nice %system %iowait  %steal   %idle</div><div class="line">           0.22    0.00    0.11    0.16    0.00   99.51</div><div class="line"></div><div class="line">avg-cpu:  %user   %nice %system %iowait  %steal   %idle</div><div class="line">           0.00    0.00    0.00    0.00    0.00  100.00</div><div class="line"></div><div class="line">avg-cpu:  %user   %nice %system %iowait  %steal   %idle</div><div class="line">           0.00    0.00    0.13    0.00    0.00   99.87</div></pre></td></tr></table></figure></p>
+<ul>
+<li>%user: 在用户级别运行所使用的CPU的百分比.</li>
+<li>%nice: 运行正常进程所使用的CPU的百分比.</li>
+<li>%sys: 在系统级别(kernel)运行所使用CPU的百分比.</li>
+<li>%iowait: CPU等待硬件I/O时,所占用CPU百分比.</li>
+<li>%idle: CPU空闲时间的百分比.</li>
+</ul>
+<h5 id="1-4-uptime"><a href="#1-4-uptime" class="headerlink" title="1.4 uptime"></a>1.4 uptime</h5><p><code>uptime</code>同<code>top</code>命令第一行<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# uptime</div><div class="line"> 14:02:46 up  1:15,  7 users,  load average: 0.00, 0.00, 0.00</div></pre></td></tr></table></figure><br>load average : 1分钟负载状态  5分钟负载状态 15分钟负载状态<br>可以通过<code>cat /proc/loadavg</code>获得</p>
+<h4 id="二、-内存篇"><a href="#二、-内存篇" class="headerlink" title="二、 内存篇"></a>二、 内存篇</h4><h5 id="2-1-free"><a href="#2-1-free" class="headerlink" title="2.1 free"></a>2.1 free</h5><p><code>free -m</code>:以“MB”为单位显示<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# free</div><div class="line">             total       used       free     shared    buffers     cached</div><div class="line">Mem:       8184092     868136    7315956          0      27400     685528</div><div class="line">-/+ buffers/cache:     155208    8028884</div><div class="line">Swap:      4194296          0    4194296</div><div class="line">[root@Centos ~]# free -m</div><div class="line">             total       used       free     shared    buffers     cached</div><div class="line">Mem:          7992        847       7144          0         26        669</div><div class="line">-/+ buffers/cache:        151       7840</div><div class="line">Swap:         4095          0       4095</div></pre></td></tr></table></figure><br>关于 cache：<br>linux的内存管理机制与windows的内存管理机制不同，就个人理解，linux遵循<strong>最大使用内存</strong>的原则，所有打开的文件都会被缓存，在文件打开关闭之后，缓存文件的内存不会从物理内存中释放（会有其他机制做限制，控制使用内存大小）。但是windows会在文件关闭以后释放内存。所以在此，<strong>空闲内存应为“-/+ buffers/cache:  ”所在行中“free”列,即，物理内存中”free”+”cache”</strong><br>关于 Swap:<br>当 Swap 行中 used 列数值较大，应考虑增加物理内存</p>
+<h5 id="2-2-sar、pidstat"><a href="#2-2-sar、pidstat" class="headerlink" title="2.2 sar、pidstat"></a>2.2 sar、pidstat</h5><p><code>sar/pidstat -r/-u/-d  3 5</code>[获取内存/CPU/磁盘,3s 统计一次，统计5次]<br><code>sar -u 3</code> 获取cpu3秒内状态<br><code>pidstat  -r -p 1 3</code>（获取1进程每隔3秒状态）<br><code>sar</code>和<code>pidstat</code> 所显示结果有平均值统计<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# sar -r 3 5</div><div class="line">Linux 2.6.32-431.el6.x86_64 (Centos)    12/17/2017      _x86_64_        (4 CPU)</div><div class="line"></div><div class="line">02:32:00 PM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit</div><div class="line">02:32:03 PM   7313692    870400     10.64     27720    687340    127776      1.03</div><div class="line">02:32:06 PM   7313692    870400     10.64     27720    687340    127776      1.03</div><div class="line">02:32:09 PM   7313692    870400     10.64     27720    687340    127776      1.03</div><div class="line">02:32:12 PM   7313700    870392     10.64     27720    687340    127776      1.03</div><div class="line">02:32:15 PM   7313692    870400     10.64     27720    687340    127776      1.03</div><div class="line">Average:      7313694    870398     10.64     27720    687340    127776      1.03</div></pre></td></tr></table></figure></p>
+<ul>
+<li>kbmemfree:这个值和free命令中的free值基本一致,所以它不包括buffer和cache的空间.</li>
+<li>kbmemused:这个值和free命令中的used值基本一致,所以它包括buffer和cache的空间.</li>
+<li>%memused:这个值是kbmemused和内存总量(不包括swap)的一个百分比.</li>
+<li>kbbuffers和kbcached:这两个值就是free命令中的buffer和cache.</li>
+<li>kbcommit:保证当前系统所需要的内存,即为了确保不溢出而需要的内存(RAM+swap).</li>
+<li>%commit:这个值是kbcommit与内存总量(包括swap)的一个百分比.  </li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# pidstat -r -p 1824 3 4</div><div class="line">Linux 2.6.32-431.el6.x86_64 (Centos)    12/17/2017      _x86_64_        (4 CPU)</div><div class="line"></div><div class="line">02:45:12 PM       PID  minflt/s  majflt/s     VSZ    RSS   %MEM  Command</div><div class="line">02:45:15 PM      1824      0.00      0.00   57676   2308   0.03  sftp-server</div><div class="line">02:45:18 PM      1824      0.00      0.00   57676   2308   0.03  sftp-server</div><div class="line">02:45:21 PM      1824      0.00      0.00   57676   2308   0.03  sftp-server</div><div class="line">02:45:24 PM      1824      0.00      0.00   57676   2308   0.03  sftp-server</div><div class="line">Average:         1824      0.00      0.00   57676   2308   0.03  sftp-server</div></pre></td></tr></table></figure>
+<ul>
+<li>minflt/s: 每秒次缺页错误次数(minor page faults)，次缺页错误次数意即虚拟内存地址映射成物理内存地址产生的page fault次数</li>
+<li>majflt/s: 每秒主缺页错误次数(major page faults)，当虚拟内存地址映射成物理内存地址时，相应的page在swap中，这样的page fault为major page fault，一般在内存使用紧张时产生</li>
+<li><strong>VSZ:      该进程使用的虚拟内存(以kB为单位)</strong></li>
+<li><strong>RSS:      该进程使用的物理内存(以kB为单位)</strong></li>
+<li><strong>%MEM:     该进程使用内存的百分比</strong></li>
+<li>Command:  拉起进程对应的命令  </li>
+</ul>
+<p>主要关注字体加粗部分</p>
+<h4 id="三、-磁盘篇"><a href="#三、-磁盘篇" class="headerlink" title="三、 磁盘篇"></a>三、 磁盘篇</h4><h5 id="3-1-iostat-d"><a href="#3-1-iostat-d" class="headerlink" title="3.1 iostat -d"></a>3.1 iostat -d</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# iostat -d 2 3</div><div class="line">Linux 2.6.32-431.el6.x86_64 (Centos)    12/17/2017      _x86_64_        (4 CPU)</div><div class="line"></div><div class="line">Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn</div><div class="line">scd0              0.01         0.05         0.00        360          0</div><div class="line">sda               1.79        73.26       114.68     569936     892194</div><div class="line"></div><div class="line">Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn</div><div class="line">scd0              0.00         0.00         0.00          0          0</div><div class="line">sda               0.00         0.00         0.00          0          0</div><div class="line"></div><div class="line">Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn</div><div class="line">scd0              0.00         0.00         0.00          0          0</div><div class="line">sda               0.00         0.00         0.00          0          0</div></pre></td></tr></table></figure>  
+<ul>
+<li>tps: 每秒钟发送到的I/O请求数.</li>
+<li>Blk_read /s: 每秒读取的block数.</li>
+<li>Blk_wrtn/s: 每秒写入的block数.</li>
+<li>Blk_read:   读入的block总数.</li>
+<li>Blk_wrtn:  写入的block总数.<h5 id="3-2-pidstat-d"><a href="#3-2-pidstat-d" class="headerlink" title="3.2 pidstat -d"></a>3.2 pidstat -d</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# pidstat -d -p 1824 3 4</div><div class="line">Linux 2.6.32-431.el6.x86_64 (Centos)    12/17/2017      _x86_64_        (4 CPU)</div><div class="line"></div><div class="line">03:00:41 PM       PID   kB_rd/s   kB_wr/s kB_ccwr/s  Command</div><div class="line">03:00:44 PM      1824      0.00      0.00      0.00  sftp-server</div><div class="line">03:00:47 PM      1824      0.00      0.00      0.00  sftp-server</div><div class="line">03:00:50 PM      1824      0.00      0.00      0.00  sftp-server</div><div class="line">03:00:53 PM      1824      0.00      0.00      0.00  sftp-server</div><div class="line">Average:         1824      0.00      0.00      0.00  sftp-server</div></pre></td></tr></table></figure></li>
+<li>kB_rd/s: 每秒进程从磁盘读取的数据量(以kB为单位)</li>
+<li>kB_wr/s: 每秒进程向磁盘写的数据量(以kB为单位)</li>
+<li>kB_ccwr/s: 该进程每秒取消磁盘写入的数量(以kB为单位)</li>
+<li>Command: 拉起进程对应的命令<h5 id="3-3-sar-d"><a href="#3-3-sar-d" class="headerlink" title="3.3 sar -d"></a>3.3 sar -d</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# sar -d 2 3</div><div class="line">Linux 2.6.32-431.el6.x86_64 (Centos)    12/17/2017      _x86_64_        (4 CPU)</div><div class="line"></div><div class="line">03:04:00 PM       DEV       tps  rd_sec/s  wr_sec/s  avgrq-sz  avgqu-sz     await     svctm     %util</div><div class="line">03:04:02 PM   dev11-0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00</div><div class="line">03:04:02 PM    dev8-0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00</div><div class="line"></div><div class="line">03:04:02 PM       DEV       tps  rd_sec/s  wr_sec/s  avgrq-sz  avgqu-sz     await     svctm     %util</div><div class="line">03:04:04 PM   dev11-0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00</div><div class="line">03:04:04 PM    dev8-0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00</div><div class="line"></div><div class="line">03:04:04 PM       DEV       tps  rd_sec/s  wr_sec/s  avgrq-sz  avgqu-sz     await     svctm     %util</div><div class="line">03:04:06 PM   dev11-0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00</div><div class="line">03:04:06 PM    dev8-0      1.51      0.00     12.06      8.00      0.01      6.67      4.33      0.65</div><div class="line"></div><div class="line">Average:          DEV       tps  rd_sec/s  wr_sec/s  avgrq-sz  avgqu-sz     await     svctm     %util</div><div class="line">Average:      dev11-0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00</div><div class="line">Average:       dev8-0      0.50      0.00      4.01      8.00      0.00      6.67      4.33      0.22</div></pre></td></tr></table></figure></li>
+<li>DEV            磁盘设备</li>
+<li>用参数-p可以打印出sda,hdc等磁盘设备名称,如果不用参数-p,设备节点则有可能是dev8-0,dev22-0</li>
+<li>tps:每秒从物理磁盘I/O的次数.多个逻辑请求会被合并为一个I/O磁盘请求,一次传输的大小是不确定的.</li>
+<li>rd_sec/s:每秒读扇区的次数.</li>
+<li>wr_sec/s:每秒写扇区的次数.</li>
+<li>avgrq-sz:平均每次设备I/O操作的数据大小(扇区).</li>
+<li>avgqu-sz:磁盘请求队列的平均长度.</li>
+<li>await:从请求磁盘操作到系统完成处理,每次请求的平均消耗时间,包括请求队列等待时间,单位是毫秒(1秒=1000毫秒).</li>
+<li>svctm:系统处理每次请求的平均时间,不包括在请求队列中消耗的时间.</li>
+<li>%util:I/O请求占CPU的百分比,比率越大,说明越饱  </li>
+</ul>
+<h4 id="四、-网络篇"><a href="#四、-网络篇" class="headerlink" title="四、 网络篇"></a>四、 网络篇</h4><h5 id="4-1-ping"><a href="#4-1-ping" class="headerlink" title="4.1 ping"></a>4.1 ping</h5><h5 id="4-2-netstat"><a href="#4-2-netstat" class="headerlink" title="4.2 netstat"></a>4.2 netstat</h5><p><code>netstat -r</code>:路由统计<br><code>netstat -i</code>:网卡流量统计<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[root@Centos ~]# netstat -r</div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface</div><div class="line">192.168.0.0     *               255.255.255.0   U         0 0          0 eth0</div><div class="line">link-local      *               255.255.0.0     U         0 0          0 eth0</div><div class="line">default         192.168.0.1     0.0.0.0         UG        0 0          0 eth0</div><div class="line">[root@Centos ~]# netstat -i</div><div class="line">Kernel Interface table</div><div class="line">Iface       MTU Met    RX-OK RX-ERR RX-DRP RX-OVR    TX-OK TX-ERR TX-DRP TX-OVR Flg</div><div class="line">eth0       1500   0    66277      0      0      0    34173      0      0      0 BMRU</div><div class="line">lo        16436   0        0      0      0      0        0      0      0      0 LRU</div></pre></td></tr></table></figure>  </p>
+<ul>
+<li>Iface 网络接口名称。</li>
+<li>MTU（Maximum Trasmission Unit，最大传输单元）。链路层具有最大传输单元MTU这个特性，它限制了数据帧的最大长度，不同的网络类型都有一个上限值。以太网的MTU是1500，你可以用 netstat -i命令查看这个值。如果IP层有数据包要传，而且数据包的长度超过了MTU，那么IP层就要对数据包进行分片（fragmentation）操作，使每一片的长度都小于或等于MTU。我们假设要传输一个UDP数据包，以太网的MTU为1500字节，一般IP首部为20字节，UDP首部为8字节，数据的净荷（payload）部分预留是1500-20-8=1472字节。如果数据部分大于1472字节，就会出现分片现象。</li>
+<li>Met（Metric，度量值）。（供某些操作系统用，用于计算一条路由的成本）</li>
+<li>RX-OK 接收时，正确的数据包数。</li>
+<li>RX-ERR 接收时，产生错误的数据包数。</li>
+<li>RX-DRP 接收时，丢弃的数据包数。</li>
+<li>RX-OVR 接收时，由于过速（在数据传输中，由于接收设备不能接收按照发送速率传送来的数据而使数据丢失）而丢失的数据包数。</li>
+<li>TX-OK 发送时，正确的数据包数。</li>
+<li>TX-ERR 发送时，产生错误的数据包数。</li>
+<li>TX-DRP 发送时，丢弃的数据包数。</li>
+<li>TX-OVR 发送时，由于过速而丢失的数据包数。</li>
+<li>Flg 标志。<ul>
+<li>B 已经设置了一个广播地址。</li>
+<li>L 该接口是一个回送设备。</li>
+<li>M 接收所有数据包（混乱模式）。</li>
+<li>N 避免跟踪。</li>
+<li>O 在该接口上，禁用ARP。</li>
+<li>P 这是一个点到点链接。</li>
+<li>R 接口正在运行。</li>
+<li>U 接口处于“活动”状态。</li>
+</ul>
+</li>
+</ul>
+<h5 id="4-3-mtr-traceroute"><a href="#4-3-mtr-traceroute" class="headerlink" title="4.3 mtr/traceroute"></a>4.3 mtr/traceroute</h5><p><code>mtr www.baidu.com</code> :动态跟踪网络路由状态</p>
+<p><code>traceroute www.baidu.com</code> :静态跟踪网络路由状态</p>
+<h4 id="五、-参考文档"><a href="#五、-参考文档" class="headerlink" title="五、 参考文档"></a>五、 参考文档</h4><ul>
+<li><a href="http://blog.csdn.net/atomicfox/article/details/6756687" target="_blank" rel="external">netstat -i 和ifconfig -s的输出解释</a></li>
+<li><a href="https://www.cnblogs.com/ggjucheng/archive/2012/01/08/2316661.html" target="_blank" rel="external">Linux netstat命令详解</a></li>
+<li><a href="http://blog.csdn.net/jiangguilong2000/article/details/12535395" target="_blank" rel="external">Linux 运行进程实时监控pidstat命令详解</a></li>
+<li><a href="http://blog.csdn.net/chuanzhongdu1/article/details/46357505" target="_blank" rel="external">pidstat详解</a></li>
+<li><a href="http://blog.csdn.net/colin_liu2009/article/details/6862910" target="_blank" rel="external">SAR命令的解析及使用</a></li>
+<li><a href="http://blog.csdn.net/zhangjay/article/details/6656771" target="_blank" rel="external">iostat命令详解</a></li>
+<li><a href="https://www.cnblogs.com/ggjucheng/archive/2012/01/05/2312625.html" target="_blank" rel="external">inux vmstat命令实战详解</a></li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> Linux </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Linux性能 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[linux shell 算数运算/字符串操作总结]]></title>
       <url>/2017/12/05/linux-shell-%E7%AE%97%E6%95%B0%E8%BF%90%E7%AE%97-%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%93%8D%E4%BD%9C%E6%80%BB%E7%BB%93/</url>
       <content type="html"><![CDATA[<blockquote>
