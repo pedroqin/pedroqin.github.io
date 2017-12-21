@@ -4,6 +4,26 @@
 
     
   <url>
+    <loc>http://yoursite.com/2017/12/21/fsck-%E6%A3%80%E6%9F%A5%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B9%B6%E5%B0%9D%E8%AF%95%E4%BF%AE%E5%A4%8D%E9%94%99%E8%AF%AF/</loc>
+    <lastmod>2017-12-21T15:04:34.228Z</lastmod>
+    <data>
+        <display>
+        <title>fsck--检查文件系统并尝试修复错误</title>
+        <pubTime>2017-12-21T13:53:00.000Z</pubTime>
+        
+        <tag>Linux</tag>
+         
+         
+           
+             
+              <breadCrumb title="Linux" url="http://yoursite.com/categories/Linux/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://yoursite.com/2017/12/17/Linux%E6%80%A7%E8%83%BD%E8%AF%84%E4%BC%B0/</loc>
     <lastmod>2017-12-17T14:39:53.129Z</lastmod>
     <data>
@@ -179,11 +199,11 @@
         <title>Wechat_linux_Shell</title>
         <pubTime>2017-07-26T16:00:00.000Z</pubTime>
         
-        <tag>Linux</tag>
-         
         <tag>Wechat</tag>
          
         <tag>Python2.6</tag>
+         
+        <tag>Linux</tag>
          
          
            

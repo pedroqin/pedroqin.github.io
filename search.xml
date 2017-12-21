@@ -3,6 +3,65 @@
   
     
     <entry>
+      <title><![CDATA[fsck--检查文件系统并尝试修复错误]]></title>
+      <url>/2017/12/21/fsck-%E6%A3%80%E6%9F%A5%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B9%B6%E5%B0%9D%E8%AF%95%E4%BF%AE%E5%A4%8D%E9%94%99%E8%AF%AF/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>最近查阅资料经常遇到 <code>fsck</code> 命令，碰巧不久前遇到一个开机磁盘文件系统的报错，用了 <code>fsck</code> 尝试修复，果然好使，真乃神器。在此做下总结。</p>
+</blockquote>
+<a id="more"></a>
+<h4 id="场景回顾"><a href="#场景回顾" class="headerlink" title="场景回顾"></a>场景回顾</h4><p>关于怎么还原问题场景没有什么好的思路，貌似可遇不可求的样子，所以在此引用一下之前收到的图片作为例子</p>
+<h5 id="场景描述"><a href="#场景描述" class="headerlink" title="场景描述"></a>场景描述</h5><p>当时收到的问题如图：  </p>
+<img src="/2017/12/21/fsck-检查文件系统并尝试修复错误/problem.jpg" alt="problem" title="problem">    
+<p>由“Superblock mount time is in the future” 这一行可以看出，两个时间冲突了，现在的时间早于上次登录时间。可能由于非正常关机导致。   </p>
+<h5 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h5><p>在<code>(or type Control-D to continue):</code>处直接输入密码，进入修复模式，按照<code>fsck &lt;partition name&gt;</code>的形式,后输入<code>y</code>运行修复，然后reboot,重启后可能还会提示其他盘出现相同的错误,按照<code>fsck &lt;partition name&gt;</code>的形式再次运行,然后reboot,依次修复所有报错的分区就可以了</p>
+<img src="/2017/12/21/fsck-检查文件系统并尝试修复错误/repair1.jpg" alt="repair1" title="repair1">    
+<img src="/2017/12/21/fsck-检查文件系统并尝试修复错误/repair2.jpg" alt="repair2" title="repair2">    
+<img src="/2017/12/21/fsck-检查文件系统并尝试修复错误/repair3.jpg" alt="repair3" title="repair3">    
+<h4 id="命令总结"><a href="#命令总结" class="headerlink" title="命令总结"></a>命令总结</h4><p>在Linux系统中，为了增加系统性能，通常系统默认一些数据写在内存中，并不会直接将数据写入硬盘，这是因为内存速度要比硬盘快若干倍。但是有个问题，万一由于<strong>“断电”或者其他未知原因</strong>，造成系统死机，怎么办？系统就崩溃了。所以，我们需要在特定的时候让数据直接回存到硬盘中。这里提供几个常用的命令，其中，fsck命令最重要. 当文件系统发生错误时，可用fsck命令尝试加以修复.直接采用分区编号(如/dev/had3),或使用挂载点(Mount Point,如/、/usr等)指定文件系统皆可。假设一次指定多个文件系统，而这些系统分别位于不同的物理磁盘上，则fsck将会尝试同步的方式去检查他们，以节省操作时间。</p>
+<h5 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h5><p>fsck不仅可以对文件系统进行扫描，还能修正文件系统的一些问题。注意的是fsck扫描文件系统时一定要在单用户模式、修复模式或把设备umount后进行。建议在单用户模式下运行。如果扫描正常运行中的系统，会造成系统文件损坏。<br>文件系统扫描工具有fsck、fsck.ext2、fsck.ext3、fsck.ext4、fsck.msdos、fsck.cramfs、fsck.ext4dev、fsck.vfat。最好是根据不同的文件系统来调用不同的扫描工具，比如ext3的文件系统使用fsck.ext3，ext4文件系统使用fsck.ext4等。<br><em>补充：在<code>ext3</code>和<code>ext4</code>主要区别中有一条，<code>ext4</code>较<code>ext3</code>执行<code>fsck</code>命令更快一些，具体信息请自行查询</em>  </p>
+<h5 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">fsck [-sACVRP] [-t fstype] [--] [fsck-options] filesys [...]</div></pre></td></tr></table></figure>
+<p>参数 ：  </p>
+<ul>
+<li>filesys ： device 名称(eg./dev/sda1)，mount 点 (eg. / 或 /usr)</li>
+<li>-t : 给定档案系统的型式，若在 /etc/fstab 中已有定义或 kernel 本身已支援的则不需加上此参数</li>
+<li>-s : 依序一个一个地执行 fsck 的指令来检查</li>
+<li>-A : 对/etc/fstab 中所有列出来的 partition 做检查</li>
+<li>-C : 显示完整的检查进度</li>
+<li>-d : 列印 e2fsck 的 debug 结果</li>
+<li>-p : 同时有 -A 条件时，同时有多个 fsck 的检查一起执行</li>
+<li>-R : 同时有 -A 条件时，省略 / 不检查</li>
+<li>-V : 详细显示模式</li>
+<li>-a : 如果检查有错则自动修复</li>
+<li>-r : 如果检查有错则由使用者回答是否修复</li>
+</ul>
+<h5 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h5><p>检查 msdos 档案系统的 /dev/hda5 是否正常，如果有异常便自动修复 :  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">fsck -t msdos -a /dev/hda5</div></pre></td></tr></table></figure>
+<h5 id="其他适用场景"><a href="#其他适用场景" class="headerlink" title="其他适用场景"></a>其他适用场景</h5><p>临近写完忽然想起依次在产线测试遇到“Read-only file system错误”，也可尝试通过<code>fsck</code>工具进行修复</p>
+<h4 id="特别注意事项（转）"><a href="#特别注意事项（转）" class="headerlink" title="特别注意事项（转）"></a>特别注意事项（转）</h4><p>在EXT3（实际上其他文件系统也类似）无法mount，或者提示fsck时，如果有重要数据，应该慎重对待，<strong>千万不可贸然执行”fsck -f -y　“这样的自动修复功能。</strong>如果可能，<strong>先对故障区域做dd全镜像后再执行，或者以只读方式执行，并仔细看修复过程，如果提示大量inode错误、需要重建树、或大小不对等就不可再继续下去了</strong>。</p>
+<h5 id="Linux-ext3-fsck一定要慎用"><a href="#Linux-ext3-fsck一定要慎用" class="headerlink" title="Linux ext3 fsck一定要慎用"></a>Linux ext3 fsck一定要慎用</h5><p>不管是哪种文件系统，其根本目的都是相同的：如何把文件存在系统给定的区域里，如何有效地管理文件的读与写。为实现这样的目的，驱动层需要完善、周密地应付附加在文件系统上的各种操作。这些操作通常不会是一条指令完成的，如果一个过程需要多条指令完成，在执行这些操作时，全部指令未完成的情况下产生中断，那这个文件系统便会出现一致性错误(或者叫连续性错误)。<br>为了保证尽可以少的出现一致性错误，现在主流的文件系统都会设计成日志型的。日志型文件系统的主要特点就是把一个操作的所有指令执行过程都另外缓冲下来，如果全部执行完成再清除日志标志，如果操作没有执行完成，可以在重新激活后通过日志回溯或继续完成。<br>EXT3的日志功能通过在EXT2的设计基础上增加一个特殊的文件(通常是８号节点文件)，在这个文件中记录文件系统的操作过程。但EXT系统文件系统本身在节点、间接索引块、目录节点方面没有冗余保护，所以当文件系统除日志外的其他结构并不一致，却又要通过fsck来进行修复，这种一致性有可能将原本正确的结构也错误化。(就像原来是1+2=3，现在错成了1+3=3，也许改完后变成了1+3=4，就完全没办法还原成最早的1+2=3)。<br>数据恢复领域经常会遇到这类情况：一次RAID出故障后，下次启动系统提示做fsck，但做完后，也无法mount分区或者mount 分区后数据全是错的。需要对这类情况进行数据修复的难度是很大的，从一个完整的结构(fsck后实际上从系统角度看已经是完整的了)再构建另一个完全不同的结构要比修正一个错误的结构更难以下手。其实这类情况，很多是因为RAID5有早离线的盘加入了两个逻辑磁盘组，导致所有的数据流是以新+旧的方式交错组成的，自然会有太多错误。这时候如果做fsck后，有可能数据都无法恢复了。<br>所以，在EXT3（实际上其他文件系统也类似）无法mount，或者提示fsck时，如果有重要数据，应该慎重对待，千万不可贸然执行”fsck -f -y　“这样的自动修复功能。如果可能，先对故障区域做dd全镜像后再执行，或者以只读方式执行，并仔细看修复过程，如果提示大量inode错误、需要重建树、或大小不对等就不可再继续下去了。</p>
+<h4 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h4><ul>
+<li><a href="http://blog.csdn.net/ggxiaobai/article/details/53505118" target="_blank" rel="external">fsck命令使用详解及特别注意事项</a></li>
+<li><a href="http://www.runoob.com/linux/linux-comm-fsck.html" target="_blank" rel="external">Linux fsck命令</a></li>
+<li><a href="http://www.cnblogs.com/ellisonDon/archive/2012/10/04/2711302.html" target="_blank" rel="external">Superblock mount time is in the future</a></li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> Linux </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Linux性能评估]]></title>
       <url>/2017/12/17/Linux%E6%80%A7%E8%83%BD%E8%AF%84%E4%BC%B0/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -970,11 +1029,11 @@ CIFS support (advanced network filesystem, SMBFS successor)
         
         <tags>
             
-            <tag> Linux </tag>
-            
             <tag> Wechat </tag>
             
             <tag> Python2.6 </tag>
+            
+            <tag> Linux </tag>
             
         </tags>
         
