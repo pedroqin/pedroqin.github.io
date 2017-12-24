@@ -3,6 +3,54 @@
   
     
     <entry>
+      <title><![CDATA[Python解析“Unicode”编码格式文本]]></title>
+      <url>/2017/12/23/Python%E8%A7%A3%E6%9E%90%E2%80%9CUnicode%E2%80%9D%E7%BC%96%E7%A0%81%E6%A0%BC%E5%BC%8F%E6%96%87%E6%9C%AC/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>最近工作需要，需要解析一个win下工具生成的log文件，但是在解析过程中怎么也无法得到预期效果。在此做相关总结分享</p>
+</blockquote>
+<h4 id="测试环境"><a href="#测试环境" class="headerlink" title="测试环境"></a><strong>测试环境</strong></h4><pre><code>windows10
+python3.6.3
+</code></pre><h4 id="场景还原"><a href="#场景还原" class="headerlink" title="场景还原"></a><strong>场景还原</strong></h4><ul>
+<li>新建文本文档，内容如下<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">abcdefg</div><div class="line">hijklmn</div><div class="line">opqrstu</div><div class="line">vwxyz</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>然后点击 <code>文件</code>-&gt;<code>另存为</code>-&gt;<code>编码</code>-&gt;<code>Unicode</code>，如下图<br><img src="http://img.blog.csdn.net/20171224105539061?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcWluZ3VvMTIz/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<h4 id="尝试通过python-DOS进行读写操作"><a href="#尝试通过python-DOS进行读写操作" class="headerlink" title="尝试通过python/DOS进行读写操作"></a><strong>尝试通过python/DOS进行读写操作</strong></h4><h5 id="python"><a href="#python" class="headerlink" title="python"></a><strong>python</strong></h5><p>test.py:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*-coding=utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> os</div><div class="line">f = open(<span class="string">"test.txt"</span>,<span class="string">'r'</span>) </div><div class="line">print(f.readlines())</div></pre></td></tr></table></figure></p>
+<p>运行时报错如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">C:\Users\Administrator\Desktop\test&gt;python test.py test.txt</div><div class="line">Traceback (most recent call last):</div><div class="line">  File &quot;test.py&quot;, line 6, in &lt;module&gt;</div><div class="line">    print(f.readlines())</div><div class="line">UnicodeDecodeError: &apos;gbk&apos; codec can&apos;t decode byte 0xff in position 0: illegal multibyte sequence</div></pre></td></tr></table></figure></p>
+<p>后经过网上一顿找，都说应该在读文件时设定解码为“utf-8”，即改为如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># -*-coding=utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> os</div><div class="line">f = open(<span class="string">"test.txt"</span>,<span class="string">'r'</span>,encoding=<span class="string">"utf-8"</span>) </div><div class="line">print(f.readlines())</div></pre></td></tr></table></figure>
+<p>但是结果依旧不理想，说明这也不是”utf-8”的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">C:\Users\Administrator\Desktop\test&gt;python test.py</div><div class="line">Traceback (most recent call last):</div><div class="line">  File &quot;test.py&quot;, line 6, in &lt;module&gt;</div><div class="line">    print(f.readlines())</div><div class="line">  File &quot;C:\Program Files\Python36\lib\codecs.py&quot;, line 321, in decode</div><div class="line">    (result, consumed) = self._buffer_decode(data, self.errors, final)</div><div class="line">UnicodeDecodeError: &apos;utf-8&apos; codec can&apos;t decode byte 0xff in position 0: invalid start byte</div></pre></td></tr></table></figure></p>
+<h5 id="dos"><a href="#dos" class="headerlink" title="dos"></a>dos</h5><p>python测试失败，于是又尝试用dos命令解析<br>test.bat<br><figure class="highlight dos"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> /F "delims=\n" <span class="variable">%%i</span> <span class="keyword">in</span> (C:\Users\Administrator\Desktop\test\test1.txt) <span class="keyword">do</span> (<span class="built_in">echo</span> <span class="variable">%%i</span>)</div></pre></td></tr></table></figure></p>
+<p>运行脚本，没有输出</p>
+<h4 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a><strong>解决问题</strong></h4><p><em>起初在遇到此问题后并没有意识到是log文档本身有问题，而是找了半天代码的问题 = =  ，这两句这么简单也不会有什么问题啊。。。于是自己新建一个文本文档尝试读写，哎？竟然成功了，这才意识到可能在文件上面有不同，于是才想到了win下的文本文档有不同的编码格式。。。半天就这么过去了</em></p>
+<p>这里需要注意的是，<strong>win新建文本文档时，编码格式默认为ANSI</strong>，而我通过工具生成的log文档编码格式是“Unicode”。。。</p>
+<p>既然发现了问题，那么接下来就是想办法解决问题了。由于需要开发工具对log进行分析，时间紧迫，于是在<em>度搜索文本编码格式转换工具，很遗憾。没有命令行模式的，不能被我调用。那就只能自己给log文件改编码格式，但是python本身就解析错误，故放弃。Dos嘛。。。文本文档可以被记事本打开，说明解析肯定没有问题，如果我可以<strong>在dos下解析，然后重定向到新的txt文档</strong>，新的文档为默认编码“ANSI”，对了，用 <em>*<code>type</code></em></em>!</p>
+<p>所以，由于我的工具是用python写的，可以在python调用dos命令<code>type test.txt &gt; result.txt</code>然后即可成功解析，<br><code>type+重定向</code>导出的文本编码格式：<br><img src="http://img.blog.csdn.net/20171224114803748?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcWluZ3VvMTIz/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"><br>完成的示例代码如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> os</div><div class="line">os.system(<span class="string">"type test.txt &gt; result.txt"</span>)</div><div class="line">f = open(<span class="string">"result.txt"</span>,<span class="string">'r'</span>) </div><div class="line">print(f.readlines())</div></pre></td></tr></table></figure></p>
+<p>结果：<br><figure class="highlight dos"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function">C:\<span class="title">Users</span>\<span class="title">Administrator</span>\<span class="title">Desktop</span>\<span class="title">test</span>&gt;<span class="title">python</span> <span class="title">test.py</span> <span class="title">test.txt</span></span></div><div class="line"><span class="function">['<span class="title">abcdefg</span>\<span class="title">n</span>', '<span class="title">hijklmn</span>\<span class="title">n</span>', '<span class="title">opqrstu</span>\<span class="title">n</span>', '<span class="title">vwxyz</span>']</span></div></pre></td></tr></table></figure></p>
+<p>Bingo!</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Python </category>
+            
+            <category> Windows </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Pyhton </tag>
+            
+            <tag> Windows </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[fsck--检查文件系统并尝试修复错误]]></title>
       <url>/2017/12/21/fsck-%E6%A3%80%E6%9F%A5%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%B9%B6%E5%B0%9D%E8%AF%95%E4%BF%AE%E5%A4%8D%E9%94%99%E8%AF%AF/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -1029,11 +1077,11 @@ CIFS support (advanced network filesystem, SMBFS successor)
         
         <tags>
             
+            <tag> Linux </tag>
+            
             <tag> Wechat </tag>
             
             <tag> Python2.6 </tag>
-            
-            <tag> Linux </tag>
             
         </tags>
         
