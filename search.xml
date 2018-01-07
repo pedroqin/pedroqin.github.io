@@ -3,6 +3,53 @@
   
     
     <entry>
+      <title><![CDATA[Linux实现开机加载完图形界面后自动运行脚本]]></title>
+      <url>/2018/01/07/Linux%E5%AE%9E%E7%8E%B0%E5%BC%80%E6%9C%BA%E5%8A%A0%E8%BD%BD%E5%AE%8C%E5%9B%BE%E5%BD%A2%E7%95%8C%E9%9D%A2%E5%90%8E%E8%87%AA%E5%8A%A8%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC/</url>
+      <content type="html"><![CDATA[<h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><p>最近遇到一个案子需要在linux图形界面下跑测试。于是催生了想要在linux加载图形界面后实现自动化测试的想法。</p>
+<h4 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h4><ul>
+<li>OS ：Redhat 7.2</li>
+<li>启动等级： 图形界面启动或命令行启动后执行<code>startx</code><a id="more"></a>
+</li>
+</ul>
+<h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><h5 id="思路1：命令行下"><a href="#思路1：命令行下" class="headerlink" title="思路1：命令行下"></a>思路1：命令行下</h5><ul>
+<li>切换到用户家目录，在<code>.config/autostart/</code>下新建”*.desktop”</li>
+<li>若没有相应目录需<code>mkdir</code>新建，如下</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# cd $HOME</div><div class="line">[root@localhost ~]# cd .config/</div><div class="line">[root@localhost .config]# ls</div><div class="line">abrt  ibus</div><div class="line">[root@localhost .config]# mkdir autostart</div><div class="line">[root@localhost .config]# cd autostart/</div><div class="line">[root@localhost autostart]# vim run_tool.desktop</div><div class="line">[root@localhost autostart]# cat run_tool.desktop</div><div class="line">[Desktop Entry]</div><div class="line">Type=Application</div><div class="line">Exec=/root/run_tool.sh</div><div class="line">[root@localhost autostart]# cat /root/run_tool.sh</div><div class="line"><span class="meta">#</span>!/bin/bash</div><div class="line">echo hello</div><div class="line">sleep 30</div></pre></td></tr></table></figure>
+<h5 id="思路2：图形界面下"><a href="#思路2：图形界面下" class="headerlink" title="思路2：图形界面下"></a>思路2：图形界面下</h5><ul>
+<li>点击<code>Applications</code>-&gt;<code>System Tools</code>-&gt;<code>Setup Applications</code><img src="/2018/01/07/Linux实现开机加载完图形界面后自动运行脚本/setup.jpg" alt="setup" title="setup">  </li>
+<li><code>Add</code>-&gt;填写<code>Name</code>和<code>Command</code>-&gt; <code>Add</code><img src="/2018/01/07/Linux实现开机加载完图形界面后自动运行脚本/add_setup.jpg" alt="add_setup" title="add_setup">  </li>
+<li>下图中红色为上述两步添加，绿色为思路1添加<img src="/2018/01/07/Linux实现开机加载完图形界面后自动运行脚本/add_setup2.jpg" alt="add_setup2" title="add_setup2">  </li>
+<li>下图为思路2生成的 <code>$HOME/.config/autostart/run_tool.sh.desktop</code>文件<img src="/2018/01/07/Linux实现开机加载完图形界面后自动运行脚本/run_tool.sh.desktop.jpg" alt="run_tool.sh.desktop" title="run_tool.sh.desktop">  
+</li>
+</ul>
+<h4 id="具体案例实现"><a href="#具体案例实现" class="headerlink" title="具体案例实现"></a>具体案例实现</h4><p>由于通过上述方式实现的脚本自动运行在实际图形界面启动后，虽然<strong>文件有自动运行</strong>，但是却是<strong>后台运行</strong>的，<strong>无法查看脚本运行过程中显示的一些log信息</strong>，这个问题困扰我很长时间，直到不久前又看到一些大神的配置才恍然大悟。</p>
+<h5 id="实现方法"><a href="#实现方法" class="headerlink" title="实现方法"></a>实现方法</h5><ul>
+<li>通过上述思路1/2 可以实现脚本的自动运行，也可以实现实际应用程序的调用，此处将调用的脚本做如下更改，即调用”gnome-terminal” 程序<img src="/2018/01/07/Linux实现开机加载完图形界面后自动运行脚本/modify.jpg" alt="modify" title="modify">  </li>
+<li>右键桌面 -&gt; <code>Open in Terminal</code> -&gt; <code>Edit</code>-&gt; <code>Command</code>-&gt; 做如下更改<img src="/2018/01/07/Linux实现开机加载完图形界面后自动运行脚本/config.jpg" alt="config" title="config">  
+</li>
+</ul>
+<h5 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h5><img src="/2018/01/07/Linux实现开机加载完图形界面后自动运行脚本/result.jpg" alt="result" title="result">  
+<h4 id="启动等级切换命令"><a href="#启动等级切换命令" class="headerlink" title="启动等级切换命令"></a>启动等级切换命令</h4><p>图形转命令行（5-&gt;3）<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">systemctl  set-default multi-user.target</div></pre></td></tr></table></figure></p>
+<p>命令行转图形（3-&gt;5）<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">systemctl  set-default graphical.target</div></pre></td></tr></table></figure></p>
+]]></content>
+      
+        <categories>
+            
+            <category> Linux </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Linux </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Python解析“Unicode”编码格式文本]]></title>
       <url>/2017/12/23/Python%E8%A7%A3%E6%9E%90%E2%80%9CUnicode%E2%80%9D%E7%BC%96%E7%A0%81%E6%A0%BC%E5%BC%8F%E6%96%87%E6%9C%AC/</url>
       <content type="html"><![CDATA[<blockquote>
