@@ -1,0 +1,1284 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="LVM介绍LVM是 Logical Volume Manager（逻辑卷管理）的简写，它是Linux环境下对磁盘分区进行管理的一种机制。Linux用户安装Linux操作系统时遇到的一个常见的难以决定的问题就是如何正确地评估各分区大小，以分配合适的硬盘空间。普通的磁盘分区管理方式在逻辑分区划分好之后就无法改变其大小，当一个逻辑分区存放不下某个文件时，这个文件因为受上层文件系统的限制，也不能跨越多个分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LVM逻辑卷操作">
+<meta property="og:url" content="http://yoursite.com/2018/01/07/LVM逻辑卷操作/index.html">
+<meta property="og:site_name" content="Pedro&#39;s Blog">
+<meta property="og:description" content="LVM介绍LVM是 Logical Volume Manager（逻辑卷管理）的简写，它是Linux环境下对磁盘分区进行管理的一种机制。Linux用户安装Linux操作系统时遇到的一个常见的难以决定的问题就是如何正确地评估各分区大小，以分配合适的硬盘空间。普通的磁盘分区管理方式在逻辑分区划分好之后就无法改变其大小，当一个逻辑分区存放不下某个文件时，这个文件因为受上层文件系统的限制，也不能跨越多个分">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/01/07/LVM逻辑卷操作/LVM.jpg">
+<meta property="og:updated_time" content="2018-01-18T15:52:50.031Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LVM逻辑卷操作">
+<meta name="twitter:description" content="LVM介绍LVM是 Logical Volume Manager（逻辑卷管理）的简写，它是Linux环境下对磁盘分区进行管理的一种机制。Linux用户安装Linux操作系统时遇到的一个常见的难以决定的问题就是如何正确地评估各分区大小，以分配合适的硬盘空间。普通的磁盘分区管理方式在逻辑分区划分好之后就无法改变其大小，当一个逻辑分区存放不下某个文件时，这个文件因为受上层文件系统的限制，也不能跨越多个分">
+<meta name="twitter:image" content="http://yoursite.com/2018/01/07/LVM逻辑卷操作/LVM.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/01/07/LVM逻辑卷操作/"/>
+
+
+
+
+
+  <title>LVM逻辑卷操作 | Pedro's Blog</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f1571352af38e9c43104d953dc8815da";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+<a href="https://github.com/pedroqin"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Pedro's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Every day is a new day</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/07/LVM逻辑卷操作/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Pedro Qin">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/theme.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pedro's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">LVM逻辑卷操作</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-07T05:40:22-05:00">
+                2018-01-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计</span>
+                
+                <span title="字数统计">
+                  3,111
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长</span>
+                
+                <span title="阅读时长">
+                  17
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="LVM介绍"><a href="#LVM介绍" class="headerlink" title="LVM介绍"></a>LVM介绍</h4><p>LVM是 <strong>Logical Volume Manager（逻辑卷管理）</strong>的简写，它是Linux环境下对<strong>磁盘分区进行管理</strong>的一种机制。Linux用户安装Linux操作系统时遇到的一个常见的难以决定的问题就是如何正确地评估各分区大小，以分配合适的硬盘空间。普通的磁盘分区管理方式在逻辑分区划分好之后就无法改变其大小，当一个逻辑分区存放不下某个文件时，这个文件因为受上层文件系统的限制，也不能跨越多个分区来存放，所以也不能同时放到别的磁盘上。而遇到出现某个分区空间耗尽时，解决的方法通常是使用符号链接，或者使用调整分区大小的工具，但这只是暂时解决办法，没有从根本上解决问题。随着Linux的逻辑卷管理功能的出现，这些问题都迎刃而解，<strong>用户在无需停机的情况下可以方便地调整各个分区大小</strong>。<br><a id="more"></a></p>
+<h4 id="LVM基本概念"><a href="#LVM基本概念" class="headerlink" title="LVM基本概念"></a>LVM基本概念</h4><ul>
+<li><p>物理存储介质（The physical media）：这里指系统的存储设备：硬盘，如：/dev/hda1、/dev/sda等等，是存储系统最低层的存储单元。</p>
+</li>
+<li><p>物理卷（physical volume）：物理卷就是指硬盘分区或从逻辑上与磁盘分区具有同样功能的设备(如RAID)，是LVM的基本存储逻辑块，但和基本的物理存储介质（如分区、磁盘等）比较，却包含有与LVM相关的管理参数。</p>
+</li>
+<li><p>PE（physical extent）：每一个物理卷被划分为称为PE(Physical Extents)的基本单元，具有唯一编号的PE是可以被LVM寻址的最小单元。PE的大小是可配置的，<strong>默认为4MB</strong>。</p>
+</li>
+<li><p>卷组（Volume Group）：LVM卷组类似于非LVM系统中的物理硬盘，其由物理卷组成。可以在卷组上创建一个或多个“LVM分区”（逻辑卷），LVM卷组由一个或多个物理卷组成。</p>
+</li>
+<li><p>逻辑卷（logical volume）：LVM的逻辑卷类似于非LVM系统中的硬盘分区，在逻辑卷之上可以建立文件系统(比如/home或者/usr等)。</p>
+</li>
+<li><p>LE（logical extent）：逻辑卷也被划分为被称为LE(Logical Extents) 的可被寻址的基本单位。在同一个卷组中，LE的大小和PE是相同的，并且一一对应。</p>
+</li>
+</ul>
+<p>简单来说就是：</p>
+<ul>
+<li><p>PV:是物理的磁盘分区</p>
+</li>
+<li><p>VG:LVM中的物理的磁盘分区，也就是PV，必须加入VG，可以将VG理解为一个仓库或者是几个大的硬盘。</p>
+</li>
+<li><p>LV：也就是从VG中划分的逻辑分区</p>
+</li>
+</ul>
+<p>三者关系如下：<br><img src="/2018/01/07/LVM逻辑卷操作/LVM.jpg" alt="LVM" title="LVM">  </p>
+<h4 id="LVM基本操作"><a href="#LVM基本操作" class="headerlink" title="LVM基本操作"></a>LVM基本操作</h4><h5 id="创建LVM"><a href="#创建LVM" class="headerlink" title="创建LVM"></a>创建LVM</h5><ol>
+<li>将物理磁盘设备初始化为物理卷<br><code>pvcreat /dev/sdb /dev/sdc</code></li>
+<li>创建卷组，并将PV加入卷组中<br><code>vgcreat linuxvg /dev/sdb /dev/sdc</code></li>
+<li>基于卷组创建逻辑卷<br><code>lvcreat -n linuxlv -L 2G linuxvg</code></li>
+<li>为创建好的逻辑卷创建文件系统<br><code>mkfs.ext4 /dev/linuxvg/linuxlv</code></li>
+<li>将格式化好的逻辑卷挂载使用<br><code>mount /dev/linuxvg/linuxlv /mnt</code><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# lsblk</div><div class="line">NAME          MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">fd0             2:0    1    4K  0 disk</div><div class="line">sda             8:0    0   50G  0 disk</div><div class="line">├─sda1          8:1    0  500M  0 part /boot</div><div class="line">└─sda2          8:2    0 49.5G  0 part</div><div class="line">  ├─rhel-root 253:0    0 45.6G  0 lvm  /</div><div class="line">  └─rhel-swap 253:1    0  3.9G  0 lvm  [SWAP]</div><div class="line">sdb             8:16   0   10G  0 disk</div><div class="line">sdc             8:32   0   10G  0 disk</div><div class="line">sr0            11:0    1 1024M  0 rom</div><div class="line">[root@localhost ~]# pvcreate /dev/sdb /dev/sdc</div><div class="line">  Physical volume "/dev/sdb" successfully created</div><div class="line">  Physical volume "/dev/sdc" successfully created</div><div class="line">[root@localhost ~]# vgcreate linuxvg /dev/sdb /dev/sdc</div><div class="line">  Volume group "linuxvg" successfully created</div><div class="line">[root@localhost ~]# lvcreate -n linuxlv -L 15G linuxvg</div><div class="line">  Logical volume "linuxlv" created.</div><div class="line">[root@localhost ~]# ls /dev/linuxvg/linuxlv</div><div class="line">/dev/linuxvg/linuxlv</div><div class="line">[root@localhost ~]# ls /dev/linuxvg/linuxlv -l</div><div class="line">lrwxrwxrwx. 1 root root 7 Jan 18 23:09 /dev/linuxvg/linuxlv -&gt; ../dm-2</div><div class="line">[root@localhost ~]# mkfs.ext4 /dev/linuxvg/linuxlv</div><div class="line">mke2fs 1.42.9 (28-Dec-2013)</div><div class="line">Filesystem label=</div><div class="line">OS type: Linux</div><div class="line">Block size=4096 (log=2)</div><div class="line">Fragment size=4096 (log=2)</div><div class="line">Stride=0 blocks, Stripe width=0 blocks</div><div class="line">983040 inodes, 3932160 blocks</div><div class="line">196608 blocks (5.00%) reserved for the super user</div><div class="line">First data block=0</div><div class="line">Maximum filesystem blocks=2151677952</div><div class="line">120 block groups</div><div class="line">32768 blocks per group, 32768 fragments per group</div><div class="line">8192 inodes per group</div><div class="line">Superblock backups stored on blocks:</div><div class="line">        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208</div><div class="line"></div><div class="line">Allocating group tables: done</div><div class="line">Writing inode tables: done</div><div class="line">Creating journal (32768 blocks): done</div><div class="line">Writing superblocks and filesystem accounting information: done</div><div class="line"></div><div class="line">[root@localhost ~]# mount /dev/linuxvg/linuxlv /mnt/</div><div class="line">[root@localhost ~]# lsblk</div><div class="line">NAME              MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">fd0                 2:0    1    4K  0 disk</div><div class="line">sda                 8:0    0   50G  0 disk</div><div class="line">├─sda1              8:1    0  500M  0 part /boot</div><div class="line">└─sda2              8:2    0 49.5G  0 part</div><div class="line">  ├─rhel-root     253:0    0 45.6G  0 lvm  /</div><div class="line">  └─rhel-swap     253:1    0  3.9G  0 lvm  [SWAP]</div><div class="line">sdb                 8:16   0   10G  0 disk</div><div class="line">└─linuxvg-linuxlv 253:2    0   15G  0 lvm  /mnt</div><div class="line">sdc                 8:32   0   10G  0 disk</div><div class="line">└─linuxvg-linuxlv 253:2    0   15G  0 lvm  /mnt</div><div class="line">sr0                11:0    1 1024M  0 rom</div><div class="line">[root@localhost ~]# ls /mnt/</div><div class="line">lost+found</div><div class="line"></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h5 id="查看LVM"><a href="#查看LVM" class="headerlink" title="查看LVM"></a>查看LVM</h5><ol>
+<li><p>查看物理卷信息<br>pvdisplay（详细）<br>pvs</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# pvdisplay</div><div class="line">  --- Physical volume ---</div><div class="line">  PV Name               /dev/sda2</div><div class="line">  VG Name               rhel</div><div class="line">  PV Size               49.51 GiB / not usable 3.00 MiB</div><div class="line">  Allocatable           yes</div><div class="line">  PE Size               4.00 MiB</div><div class="line">  Total PE              12674</div><div class="line">  Free PE               11</div><div class="line">  Allocated PE          12663</div><div class="line">  PV UUID               amnlZC-oWgw-QxdL-Yto7-z4Nz-a3k0-oHwUTI</div><div class="line"></div><div class="line">  --- Physical volume ---</div><div class="line">  PV Name               /dev/sdb</div><div class="line">  VG Name               linuxvg</div><div class="line">  PV Size               10.00 GiB / not usable 4.00 MiB</div><div class="line">  Allocatable           yes (but full)</div><div class="line">  PE Size               4.00 MiB</div><div class="line">  Total PE              2559</div><div class="line">  Free PE               0</div><div class="line">  Allocated PE          2559</div><div class="line">  PV UUID               CQ1O8r-s9MV-irVM-YvAc-PTS2-m0v4-rgDGdt</div><div class="line"></div><div class="line">  --- Physical volume ---</div><div class="line">  PV Name               /dev/sdc</div><div class="line">  VG Name               linuxvg</div><div class="line">  PV Size               10.00 GiB / not usable 4.00 MiB</div><div class="line">  Allocatable           yes</div><div class="line">  PE Size               4.00 MiB</div><div class="line">  Total PE              2559</div><div class="line">  Free PE               1278</div><div class="line">  Allocated PE          1281</div><div class="line">  PV UUID               zH98rd-9KBB-Uzcf-oNcG-YIMj-0e4e-72UHVq</div><div class="line"></div><div class="line">[root@localhost ~]# pvs</div><div class="line">  PV         VG      Fmt  Attr PSize  PFree</div><div class="line">  /dev/sda2  rhel    lvm2 a--  49.51g 44.00m</div><div class="line">  /dev/sdb   linuxvg lvm2 a--  10.00g     0</div><div class="line">  /dev/sdc   linuxvg lvm2 a--  10.00g  4.99g</div><div class="line"></div></pre></td></tr></table></figure>
+</li>
+<li><p>查看卷组信息<br>vgdisplay（详细）<br>vgs</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# vgdisplay</div><div class="line">  --- Volume group ---</div><div class="line">  VG Name               rhel</div><div class="line">  System ID</div><div class="line">  Format                lvm2</div><div class="line">  Metadata Areas        1</div><div class="line">  Metadata Sequence No  3</div><div class="line">  VG Access             read/write</div><div class="line">  VG Status             resizable</div><div class="line">  MAX LV                0</div><div class="line">  Cur LV                2</div><div class="line">  Open LV               2</div><div class="line">  Max PV                0</div><div class="line">  Cur PV                1</div><div class="line">  Act PV                1</div><div class="line">  VG Size               49.51 GiB</div><div class="line">  PE Size               4.00 MiB</div><div class="line">  Total PE              12674</div><div class="line">  Alloc PE / Size       12663 / 49.46 GiB</div><div class="line">  Free  PE / Size       11 / 44.00 MiB</div><div class="line">  VG UUID               Vafgp6-0vl3-goSc-2cyu-3Fup-3YSM-uqqFJz</div><div class="line"></div><div class="line">  --- Volume group ---</div><div class="line">  VG Name               linuxvg</div><div class="line">  System ID</div><div class="line">  Format                lvm2</div><div class="line">  Metadata Areas        2</div><div class="line">  Metadata Sequence No  2</div><div class="line">  VG Access             read/write</div><div class="line">  VG Status             resizable</div><div class="line">  MAX LV                0</div><div class="line">  Cur LV                1</div><div class="line">  Open LV               1</div><div class="line">  Max PV                0</div><div class="line">  Cur PV                2</div><div class="line">  Act PV                2</div><div class="line">  VG Size               19.99 GiB</div><div class="line">  PE Size               4.00 MiB</div><div class="line">  Total PE              5118</div><div class="line">  Alloc PE / Size       3840 / 15.00 GiB</div><div class="line">  Free  PE / Size       1278 / 4.99 GiB</div><div class="line">  VG UUID               UnKGjG-gTMS-6vfA-Yb9H-r0lX-LAme-ZYzKMY</div><div class="line"></div><div class="line">[root@localhost ~]# vgs</div><div class="line">  VG      #PV #LV #SN Attr   VSize  VFree</div><div class="line">  linuxvg   2   1   0 wz--n- 19.99g  4.99g</div><div class="line">  rhel      1   2   0 wz--n- 49.51g 44.00m</div><div class="line"></div></pre></td></tr></table></figure>
+</li>
+<li><p>查看逻辑卷信息<br>lvdisplay（详细）<br>lvs</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# lvdisplay</div><div class="line">  --- Logical volume ---</div><div class="line">  LV Path                /dev/rhel/root</div><div class="line">  LV Name                root</div><div class="line">  VG Name                rhel</div><div class="line">  LV UUID                4Asl3W-mmCd-zB9S-Bj9S-N5c4-hQZs-X4CLIV</div><div class="line">  LV Write Access        read/write</div><div class="line">  LV Creation host, time localhost, 2017-12-06 21:31:00 +0800</div><div class="line">  LV Status              available</div><div class="line"><span class="meta">  #</span> open                 1</div><div class="line">  LV Size                45.59 GiB</div><div class="line">  Current LE             11671</div><div class="line">  Segments               1</div><div class="line">  Allocation             inherit</div><div class="line">  Read ahead sectors     auto</div><div class="line">  - currently set to     8192</div><div class="line">  Block device           253:0</div><div class="line"></div><div class="line">  --- Logical volume ---</div><div class="line">  LV Path                /dev/rhel/swap</div><div class="line">  LV Name                swap</div><div class="line">  VG Name                rhel</div><div class="line">  LV UUID                Zlv3Ld-Pii2-OHRe-43vA-y07L-ITnl-XIV2sQ</div><div class="line">  LV Write Access        read/write</div><div class="line">  LV Creation host, time localhost, 2017-12-06 21:31:01 +0800</div><div class="line">  LV Status              available</div><div class="line"><span class="meta">  #</span> open                 2</div><div class="line">  LV Size                3.88 GiB</div><div class="line">  Current LE             992</div><div class="line">  Segments               1</div><div class="line">  Allocation             inherit</div><div class="line">  Read ahead sectors     auto</div><div class="line">  - currently set to     8192</div><div class="line">  Block device           253:1</div><div class="line"></div><div class="line">  --- Logical volume ---</div><div class="line">  LV Path                /dev/linuxvg/linuxlv</div><div class="line">  LV Name                linuxlv</div><div class="line">  VG Name                linuxvg</div><div class="line">  LV UUID                Uhcntr-MZkx-Xely-UF2L-n5h5-GKT8-WycTOu</div><div class="line">  LV Write Access        read/write</div><div class="line">  LV Creation host, time localhost.localdomain, 2018-01-18 23:09:57 +0800</div><div class="line">  LV Status              available</div><div class="line"><span class="meta">  #</span> open                 1</div><div class="line">  LV Size                15.00 GiB</div><div class="line">  Current LE             3840</div><div class="line">  Segments               2</div><div class="line">  Allocation             inherit</div><div class="line">  Read ahead sectors     auto</div><div class="line">  - currently set to     8192</div><div class="line">  Block device           253:2</div><div class="line"></div><div class="line">[root@localhost ~]# lvs</div><div class="line">  LV      VG      Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert</div><div class="line">  linuxlv linuxvg -wi-ao---- 15.00g                                             </div><div class="line">  root    rhel    -wi-ao---- 45.59g                                             </div><div class="line">  swap    rhel    -wi-ao----  3.88g    </div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h5 id="删除LVM"><a href="#删除LVM" class="headerlink" title="删除LVM"></a>删除LVM</h5><ol>
+<li>首先删除一个逻辑卷<br><code>lvremove /dev/linuxvg/linuxlv</code></li>
+<li>删除一个卷组<br><code>vgremove linuxvg</code></li>
+<li>删除物理卷<br><code>pvremove /dev/sdb</code><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# umount /mnt/</div><div class="line">[root@localhost ~]# lvremove /dev/linuxvg/linuxlv</div><div class="line">Do you really want to remove active logical volume linuxlv? [y/n]: y</div><div class="line">  Logical volume "linuxlv" successfully removed</div><div class="line">[root@localhost ~]# vgremove linuxvg</div><div class="line">  Volume group "linuxvg" successfully removed</div><div class="line">[root@localhost ~]# pvremove /dev/sdb</div><div class="line">  Labels on physical volume "/dev/sdb" successfully wiped</div><div class="line">[root@localhost ~]# pvremove /dev/sdc</div><div class="line">  Labels on physical volume "/dev/sdc" successfully wiped</div><div class="line"></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="LVM-拉伸与缩小"><a href="#LVM-拉伸与缩小" class="headerlink" title="LVM 拉伸与缩小"></a>LVM 拉伸与缩小</h4><h5 id="拉伸一个逻辑卷"><a href="#拉伸一个逻辑卷" class="headerlink" title="拉伸一个逻辑卷"></a>拉伸一个逻辑卷</h5><ol>
+<li>保证VG有足够的空闲空间<br><code>vgdisplay</code></li>
+<li>扩充逻辑卷<br><code>lvextend -L +1G /dev/linuxvg/linuxlv</code></li>
+<li>查看扩充后LV大小<br><code>lvdisplay</code></li>
+<li>更新文件系统<br><code>resize2fs /dev/linuxvg/linuxlv</code></li>
+<li>查看更新后文件系统<br><code>df -h</code></li>
+</ol>
+<p><strong>注意对比在使用<code>resize2fs</code>前后<code>df -h</code>结果变化</strong><br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# vgs</div><div class="line">  VG      #PV #LV #SN Attr   VSize  VFree</div><div class="line">  linuxvg   2   1   0 wz--n- 19.99g 19.49g</div><div class="line">  rhel      1   2   0 wz--n- 49.51g 44.00m</div><div class="line">[root@localhost ~]# lvs</div><div class="line">  LV      VG      Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert</div><div class="line">  linuxlv linuxvg -wi-a----- 512.00m                                            </div><div class="line">  root    rhel    -wi-ao----  45.59g                                            </div><div class="line">  swap    rhel    -wi-ao----   3.88g  </div><div class="line">[root@localhost ~]# df -h</div><div class="line">Filesystem                   Size  Used Avail Use% Mounted on</div><div class="line">/dev/mapper/rhel-root         46G  4.3G   42G  10% /</div><div class="line">devtmpfs                     2.0G     0  2.0G   0% /dev</div><div class="line">tmpfs                        2.0G     0  2.0G   0% /dev/shm</div><div class="line">tmpfs                        2.0G  8.7M  2.0G   1% /run</div><div class="line">tmpfs                        2.0G     0  2.0G   0% /sys/fs/cgroup</div><div class="line">/dev/sda1                    497M  142M  356M  29% /boot</div><div class="line">tmpfs                        395M     0  395M   0% /run/user/0</div><div class="line">/dev/mapper/linuxvg-linuxlv  8.8G   37M  8.3G   1% /mnt</div><div class="line">[root@localhost ~]# lvextend -L +0.5G /dev/linuxvg/linuxlv</div><div class="line">  Size of logical volume linuxvg/linuxlv changed from 9.00 GiB (2304 extents) to 9.50 GiB (2432 extents).</div><div class="line">  Logical volume linuxlv successfully resized.</div><div class="line">[root@localhost ~]# lvs</div><div class="line">  LV      VG      Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert</div><div class="line">  linuxlv linuxvg -wi-ao----  9.50g                                             </div><div class="line">  root    rhel    -wi-ao---- 45.59g                                             </div><div class="line">  swap    rhel    -wi-ao----  3.88g                                             </div><div class="line">[root@localhost ~]# df -h</div><div class="line">Filesystem                   Size  Used Avail Use% Mounted on</div><div class="line">/dev/mapper/rhel-root         46G  4.3G   42G  10% /</div><div class="line">devtmpfs                     2.0G     0  2.0G   0% /dev</div><div class="line">tmpfs                        2.0G     0  2.0G   0% /dev/shm</div><div class="line">tmpfs                        2.0G  8.7M  2.0G   1% /run</div><div class="line">tmpfs                        2.0G     0  2.0G   0% /sys/fs/cgroup</div><div class="line">/dev/sda1                    497M  142M  356M  29% /boot</div><div class="line">tmpfs                        395M     0  395M   0% /run/user/0</div><div class="line">/dev/mapper/linuxvg-linuxlv  8.8G   37M  8.3G   1% /mnt</div><div class="line">[root@localhost ~]# resize2fs /dev/linuxvg/linuxlv</div><div class="line">resize2fs 1.42.9 (28-Dec-2013)</div><div class="line">Filesystem at /dev/linuxvg/linuxlv is mounted on /mnt; on-line resizing required</div><div class="line">old_desc_blocks = 2, new_desc_blocks = 2</div><div class="line">The filesystem on /dev/linuxvg/linuxlv is now 2490368 blocks long.</div><div class="line"></div><div class="line">[root@localhost ~]# df -h</div><div class="line">Filesystem                   Size  Used Avail Use% Mounted on</div><div class="line">/dev/mapper/rhel-root         46G  4.3G   42G  10% /</div><div class="line">devtmpfs                     2.0G     0  2.0G   0% /dev</div><div class="line">tmpfs                        2.0G     0  2.0G   0% /dev/shm</div><div class="line">tmpfs                        2.0G  8.7M  2.0G   1% /run</div><div class="line">tmpfs                        2.0G     0  2.0G   0% /sys/fs/cgroup</div><div class="line">/dev/sda1                    497M  142M  356M  29% /boot</div><div class="line">tmpfs                        395M     0  395M   0% /run/user/0</div><div class="line">/dev/mapper/linuxvg-linuxlv  9.3G   37M  8.8G   1% /mnt</div><div class="line"></div></pre></td></tr></table></figure></p>
+<h5 id="拉伸一个卷组"><a href="#拉伸一个卷组" class="headerlink" title="拉伸一个卷组"></a>拉伸一个卷组</h5><ol>
+<li><p>将要添加到VG的硬盘“格式化”为PV<br><code>pvcreat /dev/sdd</code></p>
+</li>
+<li><p>将新的PV添加到指定卷组中<br><code>vgextend linuxvg /dev/sdd</code></p>
+</li>
+<li><p>查看扩充后VG大小<br><code>vgdisplay</code></p>
+</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# lsblk</div><div class="line">NAME              MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">fd0                 2:0    1    4K  0 disk</div><div class="line">sda                 8:0    0   50G  0 disk</div><div class="line">├─sda1              8:1    0  500M  0 part /boot</div><div class="line">└─sda2              8:2    0 49.5G  0 part</div><div class="line">  ├─rhel-root     253:0    0 45.6G  0 lvm  /</div><div class="line">  └─rhel-swap     253:1    0  3.9G  0 lvm  [SWAP]</div><div class="line">sdb                 8:16   0   10G  0 disk</div><div class="line">└─linuxvg-linuxlv 253:2    0  9.5G  0 lvm</div><div class="line">sdc                 8:32   0   10G  0 disk</div><div class="line">sdd                 8:48   0   10G  0 disk</div><div class="line">sr0                11:0    1 1024M  0 rom</div><div class="line">[root@localhost ~]# pvs</div><div class="line">  PV         VG      Fmt  Attr PSize  PFree</div><div class="line">  /dev/sda2  rhel    lvm2 a--  49.51g  44.00m</div><div class="line">  /dev/sdb   linuxvg lvm2 a--  10.00g 508.00m</div><div class="line">  /dev/sdc   linuxvg lvm2 a--  10.00g  10.00g</div><div class="line">[root@localhost ~]# pvcreate /dev/sdd</div><div class="line">  Physical volume "/dev/sdd" successfully created</div><div class="line">[root@localhost ~]# vgextend linuxvg /dev/sdd</div><div class="line">  Volume group "linuxvg" successfully extended</div><div class="line">[root@localhost ~]# vgs</div><div class="line">  VG      #PV #LV #SN Attr   VSize  VFree</div><div class="line">  linuxvg   3   1   0 wz--n- 29.99g 20.49g</div><div class="line">  rhel      1   2   0 wz--n- 49.51g 44.00m</div><div class="line">[root@localhost ~]# pvs</div><div class="line">  PV         VG      Fmt  Attr PSize  PFree</div><div class="line">  /dev/sda2  rhel    lvm2 a--  49.51g  44.00m</div><div class="line">  /dev/sdb   linuxvg lvm2 a--  10.00g 508.00m</div><div class="line">  /dev/sdc   linuxvg lvm2 a--  10.00g  10.00g</div><div class="line">  /dev/sdd   linuxvg lvm2 a--  10.00g  10.00g</div><div class="line"></div></pre></td></tr></table></figure>
+<h5 id="缩小一个逻辑卷"><a href="#缩小一个逻辑卷" class="headerlink" title="缩小一个逻辑卷"></a>缩小一个逻辑卷</h5><ol>
+<li><p>卸载已经挂在的逻辑卷<br><code>umount /dev/linuxvg/linuxlv</code></p>
+</li>
+<li><p>缩小文件系统（会提示需要运行fsck检查文件系统）<br><code>resize2fs /dev/linuxvg/linuxlv 1G</code>(调整大小为1G)</p>
+</li>
+<li><p>缩小LV<br><code>lvreduce -L 1G /dev/linuxvg/linuxlv</code></p>
+</li>
+<li><p>查看缩小后的LV<br><code>lvdisplay</code></p>
+</li>
+<li><p>挂载<br><code>mount /dev/linuxvg/linuxlv /mnt</code></p>
+</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# umount /dev/linuxvg/linuxlv</div><div class="line">[root@localhost ~]# resize2fs /dev/linuxvg/linuxlv 5G</div><div class="line">resize2fs 1.42.9 (28-Dec-2013)</div><div class="line">Please run 'e2fsck -f /dev/linuxvg/linuxlv' first.</div><div class="line"></div><div class="line">[root@localhost ~]# e2fsck -f /dev/linuxvg/linuxlv</div><div class="line">e2fsck 1.42.9 (28-Dec-2013)</div><div class="line">Pass 1: Checking inodes, blocks, and sizes</div><div class="line">Pass 2: Checking directory structure</div><div class="line">Pass 3: Checking directory connectivity</div><div class="line">Pass 4: Checking reference counts</div><div class="line">Pass 5: Checking group summary information</div><div class="line">/dev/linuxvg/linuxlv: 11/851968 files (0.0% non-contiguous), 96500/3407872 blocks</div><div class="line">[root@localhost ~]# lvreduce -L 5G /dev/linuxvg/linuxlv</div><div class="line">  WARNING: Reducing active logical volume to 5.00 GiB</div><div class="line">  THIS MAY DESTROY YOUR DATA (filesystem etc.)</div><div class="line">Do you really want to reduce linuxlv? [y/n]: y</div><div class="line">  Size of logical volume linuxvg/linuxlv changed from 8.00 GiB (2048 extents) to 5.00 GiB (1280 extents).</div><div class="line">  Logical volume linuxlv successfully resized.</div><div class="line">[root@localhost ~]# lvs</div><div class="line">  LV      VG      Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert</div><div class="line">  linuxlv linuxvg -wi-a-----  5.00g                                             </div><div class="line">  root    rhel    -wi-ao---- 45.59g                                             </div><div class="line">  swap    rhel    -wi-ao----  3.88g    </div><div class="line">[root@localhost ~]# mount /dev/linuxvg/linuxlv /mnt/</div><div class="line"></div></pre></td></tr></table></figure>
+<h5 id="缩小卷组"><a href="#缩小卷组" class="headerlink" title="缩小卷组"></a>缩小卷组</h5><ol>
+<li><p>将一个PV从卷组中移除<br><code>vgreduce linuxvg /dev/sdc</code></p>
+</li>
+<li><p>查看缩小后的卷组大小<br><code>vgdisplay</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# vgreduce linuxvg /dev/sdd</div><div class="line">  Removed "/dev/sdd" from volume group "linuxvg"</div><div class="line">[root@localhost ~]# vgdisplay</div><div class="line">  --- Volume group ---</div><div class="line">  VG Name               linuxvg</div><div class="line">  System ID</div><div class="line">  Format                lvm2</div><div class="line">  Metadata Areas        2</div><div class="line">  Metadata Sequence No  17</div><div class="line">  VG Access             read/write</div><div class="line">  VG Status             resizable</div><div class="line">  MAX LV                0</div><div class="line">  Cur LV                1</div><div class="line">  Open LV               0</div><div class="line">  Max PV                0</div><div class="line">  Cur PV                2</div><div class="line">  Act PV                2</div><div class="line">  VG Size               19.99 GiB</div><div class="line">  PE Size               4.00 MiB</div><div class="line">  Total PE              5118</div><div class="line">  Alloc PE / Size       1280 / 5.00 GiB</div><div class="line">  Free  PE / Size       3838 / 14.99 GiB</div><div class="line">  VG UUID               15kOQs-hMI9-dKNV-rTFc-5M0L-K05E-8ueuHo</div><div class="line"></div><div class="line">  --- Volume group ---</div><div class="line">  VG Name               rhel</div><div class="line">  System ID</div><div class="line">  Format                lvm2</div><div class="line">  Metadata Areas        1</div><div class="line">  Metadata Sequence No  3</div><div class="line">  VG Access             read/write</div><div class="line">  VG Status             resizable</div><div class="line">  MAX LV                0</div><div class="line">  Cur LV                2</div><div class="line">  Open LV               2</div><div class="line">  Max PV                0</div><div class="line">  Cur PV                1</div><div class="line">  Act PV                1</div><div class="line">  VG Size               49.51 GiB</div><div class="line">  PE Size               4.00 MiB</div><div class="line">  Total PE              12674</div><div class="line">  Alloc PE / Size       12663 / 49.46 GiB</div><div class="line">  Free  PE / Size       11 / 44.00 MiB</div><div class="line">  VG UUID               Vafgp6-0vl3-goSc-2cyu-3Fup-3YSM-uqqFJz</div><div class="line"></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h4><ul>
+<li><a href="https://baike.baidu.com/item/LVM/6571177" target="_blank" rel="external">LVM</a></li>
+<li><a href="https://www.cnblogs.com/gaojun/archive/2012/08/22/2650229.html" target="_blank" rel="external">Linux LVM硬盘管理及LVM扩容</a></li>
+</ul>
+
+      
+    </div>
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/wechat-qcode.jpg" alt="Pedro Qin wechat" style="width: 200px; max-width: 100%;"/>
+    <div></div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+    <div>
+      
+        <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">
+            -------------本文结束
+            <i class="fa fa-paw"></i>
+            感谢您的阅读-------------
+        </div>
+    
+</div>
+
+      
+    </div>
+    <footer class="post-footer">
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/07/Linux实现开机加载完图形界面后自动运行脚本/" rel="next" title="Linux实现开机加载完图形界面后自动运行脚本">
+                <i class="fa fa-chevron-left"></i> Linux实现开机加载完图形界面后自动运行脚本
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMTM4NC83OTQ3"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/theme.jpg"
+               alt="Pedro Qin" />
+          <p class="site-author-name" itemprop="name">Pedro Qin</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">17</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/qin-hui-qing" target="_blank" title="Zhihu">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Zhihu
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="/uploads/wechat-qcode.jpg" target="_blank" title="Wechat">
+                  
+                    <i class="fa fa-fw fa-weixin"></i>
+                  
+                  Wechat
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/pedroqin" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/pedroqin" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#LVM介绍"><span class="nav-number">1.</span> <span class="nav-text">LVM介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LVM基本概念"><span class="nav-number">2.</span> <span class="nav-text">LVM基本概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LVM基本操作"><span class="nav-number">3.</span> <span class="nav-text">LVM基本操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建LVM"><span class="nav-number">3.1.</span> <span class="nav-text">创建LVM</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查看LVM"><span class="nav-number">3.2.</span> <span class="nav-text">查看LVM</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#删除LVM"><span class="nav-number">3.3.</span> <span class="nav-text">删除LVM</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LVM-拉伸与缩小"><span class="nav-number">4.</span> <span class="nav-text">LVM 拉伸与缩小</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#拉伸一个逻辑卷"><span class="nav-number">4.1.</span> <span class="nav-text">拉伸一个逻辑卷</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#拉伸一个卷组"><span class="nav-number">4.2.</span> <span class="nav-text">拉伸一个卷组</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#缩小一个逻辑卷"><span class="nav-number">4.3.</span> <span class="nav-text">缩小一个逻辑卷</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#缩小卷组"><span class="nav-number">4.4.</span> <span class="nav-text">缩小卷组</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Pedro Qin</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共26.4k字</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (search_path.endsWith("json")) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
