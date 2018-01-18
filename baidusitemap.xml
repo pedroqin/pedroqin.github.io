@@ -5,14 +5,22 @@
     
   <url>
     <loc>http://yoursite.com/2018/01/07/LVM%E9%80%BB%E8%BE%91%E5%8D%B7%E6%93%8D%E4%BD%9C/</loc>
-    <lastmod>2018-01-18T15:52:50.031Z</lastmod>
+    <lastmod>2018-01-18T16:04:46.798Z</lastmod>
     <data>
         <display>
         <title>LVM逻辑卷操作</title>
-        <pubTime>2018-01-07T10:40:22.000Z</pubTime>
+        <pubTime>2018-01-07T10:40:00.000Z</pubTime>
         
+        <tag>Linux</tag>
+         
          
            
+             
+              <breadCrumb title="Linux" url="http://yoursite.com/categories/Linux/"/>
+          
+             
+              <breadCrumb title="LVM" url="http://yoursite.com/categories/Linux/LVM/"/>
+          
         </display>
     </data>
     </url>
