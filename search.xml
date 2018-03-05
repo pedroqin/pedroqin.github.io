@@ -3,6 +3,44 @@
   
     
     <entry>
+      <title><![CDATA[Centos7 VNC Server 配置]]></title>
+      <url>/2018/03/05/Centos7-VNC-Server-%E9%85%8D%E7%BD%AE/</url>
+      <content type="html"><![CDATA[<h4 id="1-安装VNC相关包"><a href="#1-安装VNC相关包" class="headerlink" title="1. 安装VNC相关包"></a>1. 安装VNC相关包</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum -y install tigervnc tigervnc-server tigervnc-server-module</div></pre></td></tr></table></figure>
+<h4 id="2-复制配置模板文件"><a href="#2-复制配置模板文件" class="headerlink" title="2. 复制配置模板文件"></a>2. 复制配置模板文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cp /lib/systemd/system/vncserver@.service /lib/systemd/system/vncserver@:1.service</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<h4 id="3-修改配置文件"><a href="#3-修改配置文件" class="headerlink" title="3. 修改配置文件"></a>3. 修改配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">[root@kvm01 ~]# cat /lib/systemd/system/vncserver\@\:1.service | grep -v ^# | grep -v ^$  </div><div class="line">[Unit]  </div><div class="line">Description=Remote desktop service (VNC)  </div><div class="line">After=syslog.target network.target  </div><div class="line">[Service]  </div><div class="line">Type=forking  </div><div class="line">ExecStartPre=/bin/sh -c &apos;/usr/bin/vncserver -kill %i &gt; /dev/null 2&gt;&amp;1 || :&apos;  </div><div class="line">ExecStart=/usr/sbin/runuser -l root -c &quot;/usr/bin/vncserver %i&quot;  </div><div class="line">PIDFile=/root/.vnc/%H%i.pid  </div><div class="line">ExecStop=/bin/sh -c &apos;/usr/bin/vncserver -kill %i &gt; /dev/null 2&gt;&amp;1 || :&apos;  </div><div class="line">[Install]  </div><div class="line">WantedBy=multi-user.target</div></pre></td></tr></table></figure>
+<p><em>可直接复制以上配置文件替换原有文本</em></p>
+<h4 id="4-设置VNC用户密码"><a href="#4-设置VNC用户密码" class="headerlink" title="4. 设置VNC用户密码"></a>4. 设置VNC用户密码</h4><h5 id="第一次使用时配置"><a href="#第一次使用时配置" class="headerlink" title="第一次使用时配置"></a>第一次使用时配置</h5><p>此时直接使用<code>vncserver</code>时，由于第一次使用，会提示设置密码，另外也可通过<code>vncpasswd</code>设置vnc密码</p>
+<h5 id="防火墙配置"><a href="#防火墙配置" class="headerlink" title="防火墙配置"></a>防火墙配置</h5><p>当防火墙开启时，需对防火墙做相应配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">firewall-cmd --permanent --zone=public --add-service=vnc-server  #增加防火墙中vnc-server服务对public区域开放</div><div class="line">firewall-cmd --reload  #防火墙配置重新载入</div></pre></td></tr></table></figure>
+<h5 id="使用服务方式启动"><a href="#使用服务方式启动" class="headerlink" title="使用服务方式启动"></a>使用服务方式启动</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">systemctl daemon-reload  #重载系统配置</div><div class="line">systemctl start vncserver@:1.service #启动服务</div><div class="line">systemctl enable vncserver@:1.service #设置开机启动</div></pre></td></tr></table></figure>
+<h4 id="5-报错"><a href="#5-报错" class="headerlink" title="5. 报错"></a>5. 报错</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Job for vncserver@:1.service failed because the control process exited with error code. See &quot;systemctl status vncserver@:1.service&quot; and &quot;journalctl -xe&quot; for details</div></pre></td></tr></table></figure>
+<p>处理方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rm -rf /tmp/.X11-unix/*</div></pre></td></tr></table></figure></p>
+<h4 id="客户机软件"><a href="#客户机软件" class="headerlink" title="客户机软件"></a>客户机软件</h4><h5 id="软件名称-VNC-Viewer"><a href="#软件名称-VNC-Viewer" class="headerlink" title="软件名称: VNC Viewer"></a>软件名称: VNC Viewer</h5><h5 id="连接VNCserver"><a href="#连接VNCserver" class="headerlink" title="连接VNCserver"></a>连接VNCserver</h5><p><code>File</code>-&gt;<code>New Connection...</code>:<br>“VNC Server”处填写格式： <strong>IP:Port</strong>  </p>
+<p>由于可以开多个VNC 桌面，第一个桌面对应<strong><code>5901</code></strong>，第二个就位<strong><code>5902</code></strong>，以此类推。</p>
+<p>如当连接通过<code>vncserver</code>开启的第一个VNC桌面时，假设server IP为 ‘192.168.0.253’，则此处应写<strong>“192.168.0.253:5901”</strong></p>
+]]></content>
+      
+        <categories>
+            
+            <category> Linux </category>
+            
+            <category> VNC </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Linux </tag>
+            
+            <tag> VNC </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Linux Bash 常用操作总结]]></title>
       <url>/2018/03/02/Linux-Bash-%E6%80%BB%E7%BB%93/</url>
       <content type="html"><![CDATA[<blockquote>
